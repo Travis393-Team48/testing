@@ -69,7 +69,7 @@ namespace PlayerSpace
                     else
                         oppositeStone = "B";
 
-                    Board boardObject = new Board(boards[0]);
+                    BoardWrapper boardObject = new BoardWrapper(boards[0], boards[0].Length);
                     List<string> pointsList = boardObject.GetPoints(oppositeStone);
                     List<string> iterate;
                     List<List<string>> possibleMoves = new List<List<string>>();
@@ -101,7 +101,7 @@ namespace PlayerSpace
                             continue;
                         }
 
-                        boardObject = new Board(boards[0]);
+                        boardObject = new BoardWrapper(boards[0], boards[0].Length);
                         boardObject.PlaceStone(_stone, move[1]);
                         if (!boardObject.Reachable(move[0], " "))
                             temp.Add(move);
@@ -121,8 +121,8 @@ namespace PlayerSpace
                     //Otherwise, play dumb
                     goto case "dumb";
                 case "dumb":
-                    for (int i = 0; i < 19; i++)
-                        for (int j = 0; j < 19; j++)
+                    for (int i = 0; i < boards[0].Length; i++)
+                        for (int j = 0; j < boards[0].Length; j++)
                         {
                             try
                             {

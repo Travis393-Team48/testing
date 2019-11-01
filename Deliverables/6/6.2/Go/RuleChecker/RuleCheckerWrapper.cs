@@ -12,7 +12,7 @@ namespace RuleCheckerSpace
     {
         public static JObject Score(string[][] board)
         {
-            ValidationMethods.ValidateBoard(board);
+            ValidationMethods.ValidateBoard(board, board.Length);
             return RuleChecker.Score(board);
         }
 
@@ -24,7 +24,7 @@ namespace RuleCheckerSpace
         public static bool Play(string stone, string point, string[][][] boards)
         {
             ValidationMethods.ValidateStone(stone);
-            ValidationMethods.ValidatePoint(point);
+            ValidationMethods.ValidatePoint(point, boards[0].Length);
             ValidationMethods.ValidateBoards(boards);
             return RuleChecker.Play(stone, point, boards);
         }
@@ -39,7 +39,7 @@ namespace RuleCheckerSpace
         public static bool CheckMove(string stone, string point, string[][][] boards)
         {
             ValidationMethods.ValidateStone(stone);
-            ValidationMethods.ValidatePoint(point);
+            ValidationMethods.ValidatePoint(point, boards[0].Length);
             ValidationMethods.ValidateBoards(boards);
             return RuleChecker.CheckMove(stone, point, boards);
         }
@@ -73,7 +73,7 @@ namespace RuleCheckerSpace
         public static bool CheckSuicide(string stone, string point, string[][][] boards)
         {
             ValidationMethods.ValidateStone(stone);
-            ValidationMethods.ValidatePoint(point);
+            ValidationMethods.ValidatePoint(point, boards[0].Length);
             ValidationMethods.ValidateBoards(boards);
             return RuleChecker.CheckSuicide(stone, point, boards);
         }
@@ -81,7 +81,7 @@ namespace RuleCheckerSpace
         public static bool CheckKOForPlay(string stone, string point, string[][][] boards)
         {
             ValidationMethods.ValidateStone(stone);
-            ValidationMethods.ValidatePoint(point);
+            ValidationMethods.ValidatePoint(point, boards[0].Length);
             ValidationMethods.ValidateBoards(boards);
             return RuleChecker.CheckKOForPlay(stone, point, boards);
         }

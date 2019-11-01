@@ -12,8 +12,6 @@ namespace RuleCheckerSpace
 {
     static class RuleChecker
     {
-        private const int _board_size = 19;
-
         class Scores
         {
             int B { get; set; }
@@ -30,10 +28,10 @@ namespace RuleCheckerSpace
         {
             int blackScore = 0;
             int whiteScore = 0;
-            BoardWrapper boardObject = new BoardWrapper(board);
+            BoardWrapper boardObject = new BoardWrapper(board, board.Length);
 
-            for (int i = 0; i < _board_size; i++)
-                for (int j = 0; j < _board_size; j++)
+            for (int i = 0; i < board.Length; i++)
+                for (int j = 0; j < board.Length; j++)
                 {
                     if (board[i][j] == "B")
                         blackScore++;
@@ -121,8 +119,8 @@ namespace RuleCheckerSpace
             if (boards.Length == 1 || boards.Length == 2)
             {
                 string[][] board = boards[boards.Length - 1];
-                BoardWrapper boardObject = new BoardWrapper(board);
-                if (boardObject.GetPoints(" ").Count != 361)
+                BoardWrapper boardObject = new BoardWrapper(board, board.Length);
+                if (boardObject.GetPoints("B").Count > 0 || boardObject.GetPoints("W").Count > 0)
                     throw new RuleCheckerException("Rule 5 violated in RuleChecker: game must start with an empty board");
             }
 
@@ -205,7 +203,7 @@ namespace RuleCheckerSpace
                     foreach (string s in pointsLists[i - 1][nextPlayer])
                         removedStones.Remove(s);
 
-                    BoardWrapper hBoard = new BoardWrapper(boards[i]);
+                    BoardWrapper hBoard = new BoardWrapper(boards[i], boards[i].Length);
                     try
                     {
                         if (currentPlayer == 1)
@@ -247,7 +245,7 @@ namespace RuleCheckerSpace
 
             for (int i = 0; i < boards.Length; i++)
             {
-                BoardWrapper boardObject = new BoardWrapper(boards[i]);
+                BoardWrapper boardObject = new BoardWrapper(boards[i], boards[i].Length);
                 foreach (string b in pointsLists[i][0])
                     if (!boardObject.Reachable(b, " "))
                         throw new RuleCheckerException("Rule 7 violated in RuleChecker: stones with no liberties must be removed at point " + b);
@@ -271,7 +269,7 @@ namespace RuleCheckerSpace
             else
                 oppositeStone = "B";
 
-            BoardWrapper boardObject = new BoardWrapper(boards[0]);
+            BoardWrapper boardObject = new BoardWrapper(boards[0], boards[0].Length);
             try
             {
                 boardObject.PlaceStone(stone, point);
@@ -290,11 +288,11 @@ namespace RuleCheckerSpace
                  * if they all do, move is illegal
                  */
                 string eastPoint = (p[0] + 1).ToString() + "-" + (p[1] + 2).ToString();
-                if (p[1] != 18 && boardObject.Occupies(oppositeStone, eastPoint) && boardObject.Reachable(eastPoint, " ") != true)
+                if (p[1] != boardObject.GetSize() - 1 && boardObject.Occupies(oppositeStone, eastPoint) && boardObject.Reachable(eastPoint, " ") != true)
                     willCapture = true;
 
                 string southPoint = (p[0] + 2).ToString() + "-" + (p[1] + 1).ToString();
-                if (p[0] != 18 && boardObject.Occupies(oppositeStone, southPoint) && boardObject.Reachable(southPoint, " ") != true)
+                if (p[0] != boardObject.GetSize() - 1 && boardObject.Occupies(oppositeStone, southPoint) && boardObject.Reachable(southPoint, " ") != true)
                     willCapture = true;
 
                 string westPoint = (p[0] + 1).ToString() + "-" + (p[1]).ToString();
@@ -322,7 +320,7 @@ namespace RuleCheckerSpace
         public static bool CheckKOForPlay(string stone, string point, string[][][] boards)
         {
             List<List<List<string>>> pointsLists = GetPointsLists(boards);
-            BoardWrapper boardObject = new BoardWrapper(boards[0]);
+            BoardWrapper boardObject = new BoardWrapper(boards[0], boards[0].Length);
             try
             {
                 boardObject.PlaceStone(stone, point);
@@ -392,7 +390,7 @@ namespace RuleCheckerSpace
             List<List<List<string>>> pointsLists = new List<List<List<string>>>(); //[0][1].Count == current board, white points
             foreach (string[][] board in boards)
             {
-                BoardWrapper boardObject = new BoardWrapper(board);
+                BoardWrapper boardObject = new BoardWrapper(board, board.Length);
                 List<List<string>> points = new List<List<string>>();
                 points.Add(boardObject.GetPoints("B"));
                 points.Add(boardObject.GetPoints("W"));

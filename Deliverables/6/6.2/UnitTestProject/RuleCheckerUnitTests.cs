@@ -6,17 +6,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FluentAssertions;
 using FluentAssertions.Json;
-using PlayerSpace;
 using RuleCheckerSpace;
+using CustomExceptions;
 
 
 namespace UnitTests
 {
     [TestClass]
-    public class Assignment5UnitTests
+    public class RuleCheckerUnitTests
     {
-        private List<string> _test_files = new List<string>();
-
         /*
          * Scoring with an empty board*/
         [TestMethod]
@@ -25,7 +23,7 @@ namespace UnitTests
             //one way to create an empty board
             string[][] board = new string[19][];
             for (int i = 0; i < 19; i++)
-                board[i] = new string[19] {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "};
+                board[i] = new string[19] { " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " " };
 
             //another way to create an empty board
             string[][] aboard = new string[19][]
@@ -59,32 +57,103 @@ namespace UnitTests
         }
 
         [TestMethod]
-        //Test all files found in TestFiles/5.1 in the build folder
-        public void PeerTestsOne()
+        public void SmallBoards()
         {
-            List<string> inputs = new List<string>();
-            List<string> outputs = new List<string>();
-            DirectorySearch("TestFiles/5.1");
-            foreach (string file in _test_files)
+            string[][] board1 = new string[5][]
             {
-                if (file.Length - file.LastIndexOf('i') == 6)
-                    inputs.Add(file);
-                else
-                    outputs.Add(file);
-            }
+                new string[5] {" ", " ", " ", " ", " " },
+                new string[5] {" ", " ", " ", " ", " " },
+                new string[5] {" ", " ", " ", " ", " " },
+                new string[5] {" ", " ", " ", " ", " " },
+                new string[5] {" ", " ", " ", " ", " " }
+            };
 
-            for (int i = 0; i < inputs.Count; i++)
-                JToken.Parse(TestJson(inputs[i], "dumb")).Should().BeEquivalentTo(
-                    JToken.Parse(ExtractJson(outputs[i])));
+            JObject jObject = new JObject(
+                new JProperty("B", 0),
+                new JProperty("W", 0));
+
+            RuleCheckerWrapper.Score(board1).Should().BeEquivalentTo(jObject);
+
+            string[][][] boards1 = new string[1][][]
+            {
+                new string[5][]
+                {
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " }
+                }
+            };
+
+            RuleCheckerWrapper.Play("B", "1-1", boards1).Should().BeTrue();
+
+            string[][][] boards2 = new string[2][][]
+            {
+                new string[5][]
+                {
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " }
+                }
+                ,
+                new string[5][]
+                {
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " }
+                }
+            };
+
+            RuleCheckerWrapper.Play("W", "1-1", boards2).Should().BeTrue();
+
+            string[][][] boards3 = new string[3][][]
+            {
+                new string[5][]
+                {
+                    new string[5] {" ", "W", " ", " ", " " },
+                    new string[5] {"W", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " }
+                },
+                new string[5][]
+                {
+                    new string[5] {" ", "W", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " }
+                },
+                new string[5][]
+                {
+                    new string[5] {" ", "W", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " },
+                    new string[5] {" ", " ", " ", " ", " " }
+                }
+            };
+
+            Action act = () => RuleCheckerWrapper.Play("B", "1-1", boards3);
+            act.Should().Throw<RuleCheckerException>()
+                .WithMessage("Rule 7a violated in RuleChecker: self sacrifice is not allowed");
         }
 
+        #region PeerTests
+        private List<string> _test_files = new List<string>();
+
         [TestMethod]
-        //Test all files found in TestFiles/5.2 in the build folder
-        public void PeerTestsTwo()
+        //Test all files found in TestFiles/ in the build folder
+        public void PeerTests()
         {
             List<string> inputs = new List<string>();
             List<string> outputs = new List<string>();
-            DirectorySearch("TestFiles/5.2");
+            DirectorySearch("TestFiles/4");
             foreach (string file in _test_files)
             {
                 if (file.Length - file.LastIndexOf('i') == 6)
@@ -93,8 +162,9 @@ namespace UnitTests
                     outputs.Add(file);
             }
 
+
             for (int i = 0; i < inputs.Count; i++)
-                JToken.Parse(TestJson(inputs[i], "less dumb")).Should().BeEquivalentTo(
+                JToken.Parse(TestJson(inputs[i])).Should().BeEquivalentTo(
                     JToken.Parse(ExtractJson(outputs[i])));
         }
 
@@ -125,26 +195,23 @@ namespace UnitTests
             return json;
         }
 
-        //Parse json from a file and run it through Player
-        //Returns output of Player.JsonCommand
-        private string TestJson(string filePath, string AIType)
+        //Parse json from a file and run it through RuleChecker
+        //Returns output of RuleChecker.JsonCommand
+        private string TestJson(string filePath)
         {
             string json = ExtractJson(filePath);
 
             //Parse console input
             List<JToken> jTokenList = ParsingHelper.ParseJson(json);
-            List<JToken> finalList = new List<JToken>();
 
-            PlayerAdapter aiPlayer = new PlayerAdapter();
-            JToken toAdd;
+            List<JToken> finalList = new List<JToken>();
             foreach (JToken jtoken in jTokenList)
             {
-                toAdd = aiPlayer.JsonCommand(jtoken, "no name", AIType);
-                if (toAdd.Type != JTokenType.Null)
-                    finalList.Add(toAdd);
+                finalList.Add(RuleCheckerAdapter.JsonCommand(jtoken));
             }
 
             return JsonConvert.SerializeObject(finalList);
         }
+        #endregion
     }
 }

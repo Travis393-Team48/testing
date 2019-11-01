@@ -55,7 +55,7 @@ static class JsonValidation
                 "passed to Adapter: wrong number of elements");
         }
     }
-    public static void ValidateBoard(JToken board)
+    public static void ValidateBoard(JToken board, int size = 19)
     {
         string[][] newBoard;
         try
@@ -67,13 +67,13 @@ static class JsonValidation
             throw new InvalidJsonInputException("Invalid board passed to Adapter: cannot be converted into a string[][]");
         }
 
-        if (newBoard.Length != 19)
-            throw new InvalidJsonInputException("Invalid board passed to Adapter: number of rows != 19");
+        if (newBoard.Length != size)
+            throw new InvalidJsonInputException("Invalid board passed to Adapter: number of rows != " + size);
 
         foreach (string[] row in newBoard)
         {
-            if (row.Length != 19)
-                throw new InvalidJsonInputException("Invalid board passed to Adapter: number of elements in row != 19");
+            if (row.Length != size)
+                throw new InvalidJsonInputException("Invalid board passed to Adapter: number of elements in row != " + size);
             foreach (string element in row)
                 if (element != "W" && element != "B" && element != " ")
                     throw new InvalidJsonInputException("Invalid board passed to Adapter: invlaid elements in board");
@@ -107,7 +107,7 @@ static class JsonValidation
         if (newMaybeStone != "W" && newMaybeStone != "B" && newMaybeStone != " ")
             throw new InvalidJsonInputException("Invalid MaybeStone passed to Adapter: not a valid MaybeStone (\"W\" or \"B\" or \" \")");
     }
-    public static void ValidatePoint(JToken point)
+    public static void ValidatePoint(JToken point, int size = 19)
     {
         string strPoint;
         int[] newPoint;
@@ -129,7 +129,7 @@ static class JsonValidation
         }
         try
         {
-            if (0 <= newPoint[0] && newPoint[0] <= 18 && 0 <= newPoint[1] && newPoint[1] <= 18)
+            if (0 <= newPoint[0] && newPoint[0] <= size - 1 && 0 <= newPoint[1] && newPoint[1] <= size - 1)
                 return;
         }
         catch
@@ -202,18 +202,22 @@ static class JsonValidation
         {
             throw new InvalidJsonInputException("Invalid boards passed to Adapter: boards is not an array of string arrays");
         }
+
+        if (boards.Count() > 3 || boards.Count() < 0)
+            throw new InvalidJsonInputException("Invalid boards passed to Adapter: invalid number of boards");
+
         try
         {
             string[][][] b = boards.ToObject<string[][][]>();
+            int size = b[0].Length;
             foreach (string[][] i in b)
-                ValidateBoard(JToken.Parse(JsonConvert.SerializeObject(i)));
+                ValidateBoard(JToken.Parse(JsonConvert.SerializeObject(i)), size);
         }
         catch (InvalidJsonInputException)
         {
             throw new InvalidJsonInputException("Invalid boards passed to Adapter: boards contains an invalid board");
         }
-        if (boards.Count() > 3 || boards.Count() < 0)
-            throw new InvalidJsonInputException("Invalid boards passed to Adapter: invalid number of boards");
+
     }
 
     /*

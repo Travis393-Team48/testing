@@ -26,7 +26,7 @@ namespace BoardSpace
             BoardWrapper boardObject;
 
             JsonValidation.ValidateJTokenBoard(jtoken);
-            boardObject = new BoardWrapper(jtoken.ElementAt(0).ToObject<string[][]>());
+            boardObject = new BoardWrapper(jtoken.ElementAt(0).ToObject<string[][]>(), jtoken.ElementAt(0).Count());
             statement = jtoken.ElementAt(1);
 
             switch (statement.ElementAt(0).ToObject<string>())

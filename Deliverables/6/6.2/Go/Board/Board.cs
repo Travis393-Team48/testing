@@ -11,29 +11,35 @@ namespace BoardSpace
     class Board
     {
         string[][] _board;
+        int _size;
 
         /* A Board object.
          * Contains an array of string arrays which represent a board
          * Provides various queries and commands to check of modify the board
          * board[row][column]
          */
-        public Board(string[][] newBoard = null)
+        public Board(string[][] newBoard = null, int size = 19)
         {
+            _size = size;
             if (newBoard == null)
             {
                 //if Board is constructed with no arguments, create an empty board
-                newBoard = new string[19][];
+                newBoard = new string[size][];
                 for (int i = 0; i < newBoard.Length; i++)
-                    newBoard[i] = new string[19] {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "};
+                {
+                    newBoard[i] = new string[size];
+                    for (int j = 0; j < newBoard[i].Length; j++)
+                        newBoard[i][j] = " ";
+                }
                 _board = newBoard;
             }
             else
             {
-                _board = new string[19][];
-                for (int i = 0; i < 19; i++)
+                _board = new string[size][];
+                for (int i = 0; i < size; i++)
                 {
-                    _board[i] = new string[19];
-                    Array.Copy(newBoard[i], _board[i], 19);
+                    _board[i] = new string[size];
+                    Array.Copy(newBoard[i], _board[i], size);
                 }
             }
         }
@@ -64,9 +70,9 @@ namespace BoardSpace
          */
         public bool Reachable(string point, string maybeStone)
         {
-            bool[][] searchGraph = new bool[19][];
-            for (int i = 0; i < 19; i++)
-                searchGraph[i] = new bool[19];
+            bool[][] searchGraph = new bool[_size][];
+            for (int i = 0; i < _size; i++)
+                searchGraph[i] = new bool[_size];
 
             List<int[]> searchList = new List<int[]>();
             searchList.Add(ParsingHelper.ParsePoint(point));
@@ -93,13 +99,13 @@ namespace BoardSpace
                  * add it to the searchList
                  * and mark on the searchGraph that we will search that point
                  */
-                if (p[0] != 18 && searchGraph[p[1]][p[0] + 1] != true)
+                if (p[0] != _size - 1 && searchGraph[p[1]][p[0] + 1] != true)
                 {
                     searchList.Add(new int[] { p[0] + 1, p[1] });
                     searchGraph[p[1]][p[0] + 1] = true;
                 }
                 //South ...
-                if (p[1] != 18 && searchGraph[p[1] + 1][p[0]] != true)
+                if (p[1] != _size - 1 && searchGraph[p[1] + 1][p[0]] != true)
                 {
                     searchList.Add(new int[] { p[0], p[1] + 1 });
                     searchGraph[p[1] + 1][p[0]] = true;
@@ -186,11 +192,11 @@ namespace BoardSpace
             List<string> adj = new List<string>();
             int[] p = ParsingHelper.ParsePoint(point);
             string eastPoint = (p[0] + 1).ToString() + "-" + (p[1] + 2).ToString();
-            if (p[1] != 18 && Occupies(" ", eastPoint))
+            if (p[1] != _size - 1 && Occupies(" ", eastPoint))
                 adj.Add(eastPoint);
 
             string southPoint = (p[0] + 2).ToString() + "-" + (p[1] + 1).ToString();
-            if (p[0] != 18 && Occupies(" ", southPoint))
+            if (p[0] != _size - 1 && Occupies(" ", southPoint))
                 adj.Add(southPoint);
 
             string westPoint = (p[0] + 1).ToString() + "-" + (p[1]).ToString();
@@ -202,6 +208,11 @@ namespace BoardSpace
                 adj.Add(northPoint);
 
             return adj;
+        }
+
+        public int GetSize()
+        {
+            return _size;
         }
     }
 }

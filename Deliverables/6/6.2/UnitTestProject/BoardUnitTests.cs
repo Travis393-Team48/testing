@@ -12,21 +12,21 @@ using BoardSpace;
 namespace UnitTests
 {
     [TestClass]
-    public class Assignment3UnitTests
+    public class BoardUnitTests
     {
         private List<string> _test_files = new List<string>();
 
         [TestMethod]
         public void ParsePointTests()
         {
-            Assert.AreEqual(parsePoint("1-1")[0], 0);
-            Assert.AreEqual(parsePoint("1-1")[1], 0);
-            Assert.AreEqual(parsePoint("19-19")[0], 18);
-            Assert.AreEqual(parsePoint("19-19")[1], 18);
-            Assert.AreEqual(parsePoint("15-19")[0], 14);
-            Assert.AreEqual(parsePoint("15-19")[1], 18);
-            Assert.AreEqual(parsePoint("15-5")[0], 14);
-            Assert.AreEqual(parsePoint("15-5")[1], 4);
+            Assert.AreEqual(ParsingHelper.ParsePoint("1-1")[0], 0);
+            Assert.AreEqual(ParsingHelper.ParsePoint("1-1")[1], 0);
+            Assert.AreEqual(ParsingHelper.ParsePoint("19-19")[0], 18);
+            Assert.AreEqual(ParsingHelper.ParsePoint("19-19")[1], 18);
+            Assert.AreEqual(ParsingHelper.ParsePoint("15-19")[0], 14);
+            Assert.AreEqual(ParsingHelper.ParsePoint("15-19")[1], 18);
+            Assert.AreEqual(ParsingHelper.ParsePoint("15-5")[0], 14);
+            Assert.AreEqual(ParsingHelper.ParsePoint("15-5")[1], 4);
         }
 
         [TestMethod]
@@ -105,28 +105,6 @@ namespace UnitTests
             }
 
             return JsonConvert.SerializeObject(finalList);
-        }
-
-        /* Takes a "point" string and returns it as an array of ints, with both points = point - 1 (indices start at 0)
-        * column = index 0, row = index 1
-        */
-        public int[] parsePoint(string point)
-        {
-            int[] points = new int[2];
-            string num = "";
-            foreach (char c in point)
-            {
-                if (c.ToString() == "-")
-                {
-                    points[0] = int.Parse(num) - 1;
-                    num = "";
-                    continue;
-                }
-                num += c;
-            }
-            points[1] = int.Parse(num) - 1;
-
-            return points;
         }
     }
 }

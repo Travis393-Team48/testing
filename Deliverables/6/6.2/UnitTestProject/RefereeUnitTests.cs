@@ -6,23 +6,22 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FluentAssertions;
 using FluentAssertions.Json;
-using RuleCheckerSpace;
-
 
 namespace UnitTests
 {
     [TestClass]
-    public class Assignment4UnitTests
+    public class RefereeUnitTests
     {
+        #region PeerTests
         private List<string> _test_files = new List<string>();
 
         [TestMethod]
-        //Test all files found in TestFiles/ in the build folder
+        //Test all files found in TestFiles/6.2 in the build folder
         public void PeerTests()
         {
             List<string> inputs = new List<string>();
             List<string> outputs = new List<string>();
-            DirectorySearch("TestFiles/4");
+            DirectorySearch("TestFiles/6.2");
             foreach (string file in _test_files)
             {
                 if (file.Length - file.LastIndexOf('i') == 6)
@@ -30,7 +29,6 @@ namespace UnitTests
                 else
                     outputs.Add(file);
             }
-
 
             for (int i = 0; i < inputs.Count; i++)
                 JToken.Parse(TestJson(inputs[i])).Should().BeEquivalentTo(
@@ -64,22 +62,30 @@ namespace UnitTests
             return json;
         }
 
-        //Parse json from a file and run it through RuleChecker
-        //Returns output of RuleChecker.JsonCommand
         private string TestJson(string filePath)
         {
             string json = ExtractJson(filePath);
 
             //Parse console input
             List<JToken> jTokenList = ParsingHelper.ParseJson(json);
-
             List<JToken> finalList = new List<JToken>();
+
+            JToken toAdd;
             foreach (JToken jtoken in jTokenList)
             {
-                finalList.Add(RuleCheckerAdapter.JsonCommand(jtoken));
+                throw new NotImplementedException();
+                if (toAdd.Type != JTokenType.Null)
+                    finalList.Add(toAdd);
             }
 
             return JsonConvert.SerializeObject(finalList);
+        }
+        #endregion
+
+        [TestMethod]
+        public void UnitTest()
+        {
+
         }
     }
 }

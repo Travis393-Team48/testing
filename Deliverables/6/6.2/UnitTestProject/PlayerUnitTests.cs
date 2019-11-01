@@ -6,22 +6,24 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FluentAssertions;
 using FluentAssertions.Json;
+using PlayerSpace;
+using RuleCheckerSpace;
+
 
 namespace UnitTests
 {
     [TestClass]
-    public class Assignment6UnitTests
+    public class PlayerUnitTests
     {
-        #region PeerTests
         private List<string> _test_files = new List<string>();
 
         [TestMethod]
-        //Test all files found in TestFiles/6.2 in the build folder
-        public void PeerTests()
+        //Test all files found in TestFiles/5.1 in the build folder
+        public void PeerTestsOne()
         {
             List<string> inputs = new List<string>();
             List<string> outputs = new List<string>();
-            DirectorySearch("TestFiles/6.2");
+            DirectorySearch("TestFiles/5.1");
             foreach (string file in _test_files)
             {
                 if (file.Length - file.LastIndexOf('i') == 6)
@@ -31,7 +33,27 @@ namespace UnitTests
             }
 
             for (int i = 0; i < inputs.Count; i++)
-                JToken.Parse(TestJson(inputs[i])).Should().BeEquivalentTo(
+                JToken.Parse(TestJson(inputs[i], "dumb")).Should().BeEquivalentTo(
+                    JToken.Parse(ExtractJson(outputs[i])));
+        }
+
+        [TestMethod]
+        //Test all files found in TestFiles/5.2 in the build folder
+        public void PeerTestsTwo()
+        {
+            List<string> inputs = new List<string>();
+            List<string> outputs = new List<string>();
+            DirectorySearch("TestFiles/5.2");
+            foreach (string file in _test_files)
+            {
+                if (file.Length - file.LastIndexOf('i') == 6)
+                    inputs.Add(file);
+                else
+                    outputs.Add(file);
+            }
+
+            for (int i = 0; i < inputs.Count; i++)
+                JToken.Parse(TestJson(inputs[i], "less dumb")).Should().BeEquivalentTo(
                     JToken.Parse(ExtractJson(outputs[i])));
         }
 
@@ -62,7 +84,9 @@ namespace UnitTests
             return json;
         }
 
-        private string TestJson(string filePath)
+        //Parse json from a file and run it through Player
+        //Returns output of Player.JsonCommand
+        private string TestJson(string filePath, string AIType)
         {
             string json = ExtractJson(filePath);
 
@@ -70,22 +94,16 @@ namespace UnitTests
             List<JToken> jTokenList = ParsingHelper.ParseJson(json);
             List<JToken> finalList = new List<JToken>();
 
+            PlayerAdapter aiPlayer = new PlayerAdapter();
             JToken toAdd;
             foreach (JToken jtoken in jTokenList)
             {
-                throw new NotImplementedException();
+                toAdd = aiPlayer.JsonCommand(jtoken, "no name", AIType);
                 if (toAdd.Type != JTokenType.Null)
                     finalList.Add(toAdd);
             }
 
             return JsonConvert.SerializeObject(finalList);
-        }
-        #endregion
-
-        [TestMethod]
-        public void UnitTest()
-        {
-
         }
     }
 }
