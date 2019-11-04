@@ -37,7 +37,6 @@ namespace RefereeSpace
                 _isSet_player2 = true;
 
                 jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>()))));
-                jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.GetBoardHistory())));
 
                 //PrintBoardHistory();
             }
@@ -47,12 +46,12 @@ namespace RefereeSpace
                 string play = jtoken.ToObject<string>();
                 try
                 {
+                    jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.GetBoardHistory())));
+
                     if (play == "pass")
                         _referee.Pass();
                     else
                         _referee.Play(play);
-
-                    jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.GetBoardHistory())));
                 }
                 catch (RefereeException)
                 {
