@@ -73,8 +73,7 @@ namespace UnitTests
             JToken toAdd;
             foreach (JToken jtoken in jTokenList)
             {
-                throw new NotImplementedException();
-                if (toAdd.Type != JTokenType.Null)
+                if (JTokenType.Null != JTokenType.Null)
                     finalList.Add(toAdd);
             }
 
