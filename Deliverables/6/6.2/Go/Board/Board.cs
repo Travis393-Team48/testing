@@ -214,5 +214,10 @@ namespace BoardSpace
         {
             return _size;
         }
+
+        public string[][] GetBoard()
+        {
+            return _board;
+        }
     }
 }

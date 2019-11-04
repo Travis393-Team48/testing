@@ -70,5 +70,10 @@ namespace BoardSpace
         {
             return _board.GetSize();
         }
+
+        public string[][] GetBoard()
+        {
+            return _board.GetBoard();
+        }
     }
 }

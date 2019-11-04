@@ -142,7 +142,15 @@ namespace PlayerSpace
             return "pass";
         }
 
+        public string GetStone()
+        {
+            return _stone;
+        }
 
+        public string GetName()
+        {
+            return _name;
+        }
 
         //Helper function for sorting possible moves()
         private static int ComparePossibleMoves(List<string> x, List<string> y)

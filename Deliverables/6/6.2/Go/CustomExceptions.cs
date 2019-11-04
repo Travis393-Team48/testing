@@ -92,5 +92,20 @@ namespace CustomExceptions
         }
     }
 
+    public class RefereeException : Exception
+    {
+        public RefereeException()
+        {
+        }
 
+        public RefereeException(string message)
+            : base(message)
+        {
+        }
+
+        public RefereeException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

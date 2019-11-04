@@ -9,18 +9,12 @@ using CustomExceptions;
 
 namespace PlayerSpace
 {
+    /* 
+     * Wrapper for the Player Class
+     * Provides checks to make sure other classes interact correctly with the player
+     */
     public class PlayerWrapper
     {
-        /* 
-         * Interfaces between the Player and Json Inputs
-         * Provides a method called JsonCommand which is how Json Inputs interact with Player
-         * Also provides checks to make sure inputs are correct
-         * Also checks that register and receive-stones are called before make-a-move
-         * Json Commands must be in the format ["register"], ["receive-stones", Stone], and ["make-a-move", Boards]
-         * Returns JSON data as a JToken (if input is valid) 
-         * Holds an Player object
-         */
-
         private Player _player;
         private bool _receive_stones_flag;
 
@@ -50,6 +44,16 @@ namespace PlayerSpace
             if (!_receive_stones_flag)
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: ReceiveStones not called before MakeAMove");
             return _player.MakeAMove(boards);
+        }
+
+        public string GetStone()
+        {
+            return _player.GetStone();
+        }
+
+        public string GetName()
+        {
+            return _player.GetName();
         }
     }
 }
