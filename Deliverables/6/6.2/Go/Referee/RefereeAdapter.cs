@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CustomExceptions;
+using PlayerSpace;
 
 namespace RefereeSpace
 {
@@ -32,6 +33,8 @@ namespace RefereeSpace
             {
                 Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
                 _isSet_player2 = true;
+
+                PrintBoardHistory();
             }
             //Play out the match
             else
@@ -39,19 +42,28 @@ namespace RefereeSpace
                 string play = jtoken.ToObject<string>();
                 try
                 {
-                    Console.WriteLine(JsonConvert.SerializeObject(_referee.GetBoardHistory()));
-
                     if (play == "pass")
                         _referee.Pass();
                     else
                         _referee.Play(play);
+
+                    PrintBoardHistory();
                 }
                 catch (RefereeException)
                 {
-                    Console.WriteLine(JsonConvert.SerializeObject(_referee.GetVictors()));
+                    List<PlayerWrapper> victors = _referee.GetVictors();
+                    List<string> names = new List<string>();
+                    foreach (PlayerWrapper victor in victors)
+                        names.Add(victor.GetName());
+                    Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
                     throw new RefereeException("Game has ended");
                 }
             }
+        }
+
+        public void PrintBoardHistory()
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(_referee.GetBoardHistory()));
         }
     }
 }

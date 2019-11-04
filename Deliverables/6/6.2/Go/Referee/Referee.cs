@@ -11,6 +11,9 @@ using Newtonsoft.Json.Linq;
 
 namespace RefereeSpace
 {
+    /*
+     * 
+     */
     class Referee
     {
         PlayerWrapper _player1;
@@ -25,7 +28,6 @@ namespace RefereeSpace
             _board_history = new List<BoardWrapper>();
             _victors = new List<PlayerWrapper>();
             _board_history.Add(new BoardWrapper(null, size));
-            _current_player = _player1;
         }
 
         public string Register(string name, string aiType = "human")
@@ -34,6 +36,7 @@ namespace RefereeSpace
             {
                 _player1 = new PlayerWrapper(name, aiType);
                 _player1.ReceiveStones("B");
+                _current_player = _player1;
                 return "B";
             }
             else if (_player2 == null)
@@ -45,12 +48,13 @@ namespace RefereeSpace
             throw new InvalidOperationException("Invalid call to Register in Referee: Cannot register more than two players");
         }
 
-        /* Passes the game 
+        /* Passes the game, updating _pass_count and _current_player
          * throws and exception if game should end and updates _victors (sorted by lexigraphical order)
          */
         public void Pass()
         {
             _pass_count++;
+            _current_player = _current_player == _player1 ? _player2 : _player1; 
             if (_pass_count >= 2)
             {
                 JObject scores = RuleCheckerWrapper.Score(_board_history[0].GetBoard());
@@ -93,10 +97,10 @@ namespace RefereeSpace
             b.PlaceStone(_current_player.GetStone(), point);
             _board_history.Insert(0, b);
             if (_board_history.Count == 4)
-                _board_history.RemoveAt(4);
+                _board_history.RemoveAt(3);
 
             _pass_count = 0;
-            _current_player = _current_player == _player1 ? _player2 : _player1;
+            _current_player = _current_player == _player1 ? _player2 : _player1; 
         }
 
         public string[][][] GetBoardHistory()
