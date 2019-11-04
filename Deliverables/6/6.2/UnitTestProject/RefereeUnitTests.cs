@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FluentAssertions;
 using FluentAssertions.Json;
+using RefereeSpace;
+using CustomExceptions;
 
 namespace UnitTests
 {
@@ -70,11 +72,17 @@ namespace UnitTests
             List<JToken> jTokenList = ParsingHelper.ParseJson(json);
             List<JToken> finalList = new List<JToken>();
 
-            JToken toAdd;
+            RefereeAdapter referee = new RefereeAdapter();
             foreach (JToken jtoken in jTokenList)
             {
-                if (JTokenType.Null != JTokenType.Null)
-                    finalList.Add(toAdd);
+                try
+                {
+                    referee.JsonCommand(jtoken, ref finalList);
+                }
+                catch (RefereeException)
+                {
+                    break;
+                }
             }
 
             return JsonConvert.SerializeObject(finalList);

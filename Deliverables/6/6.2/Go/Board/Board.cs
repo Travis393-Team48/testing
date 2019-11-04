@@ -210,6 +210,22 @@ namespace BoardSpace
             return adj;
         }
 
+        /*
+         * Removes dead stones from the board
+         */
+        public void RemoveDeadStones()
+        {
+            List<string> points = GetPoints("B");
+            foreach (string point in points)
+                if (!Reachable(point, " "))
+                    RemoveStone("B", point);
+
+            points = GetPoints("W");
+            foreach (string point in points)
+                if (!Reachable(point, " "))
+                    RemoveStone("W", point);
+        }
+
         public int GetSize()
         {
             return _size;

@@ -21,20 +21,25 @@ namespace RefereeSpace
             _referee = new RefereeWrapper(size);
         }
 
-        public void JsonCommand(JToken jtoken)
+        public void JsonCommand(JToken jtoken, ref List<JToken> jTokenList)
         {
             //Register Players
             if (!_isSet_player1)
             {
-                Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
+                //Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
                 _isSet_player1 = true;
+
+                jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>()))));
             }
             else if (!_isSet_player2)
             {
-                Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
+                //Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
                 _isSet_player2 = true;
 
-                PrintBoardHistory();
+                jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>()))));
+                jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.GetBoardHistory())));
+
+                //PrintBoardHistory();
             }
             //Play out the match
             else
@@ -47,7 +52,7 @@ namespace RefereeSpace
                     else
                         _referee.Play(play);
 
-                    PrintBoardHistory();
+                    jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.GetBoardHistory())));
                 }
                 catch (RefereeException)
                 {
@@ -55,7 +60,10 @@ namespace RefereeSpace
                     List<string> names = new List<string>();
                     foreach (PlayerWrapper victor in victors)
                         names.Add(victor.GetName());
-                    Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
+
+                    //Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
+                    jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(names.ToArray())));
+
                     throw new RefereeException("Game has ended");
                 }
             }

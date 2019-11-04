@@ -48,13 +48,19 @@ namespace RefereeSpace
             throw new InvalidOperationException("Invalid call to Register in Referee: Cannot register more than two players");
         }
 
-        /* Passes the game, updating _pass_count and _current_player
+        /* Passes the game, updating _pass_count, _current_player, and _board_history
          * throws and exception if game should end and updates _victors (sorted by lexigraphical order)
          */
         public void Pass()
         {
             _pass_count++;
-            _current_player = _current_player == _player1 ? _player2 : _player1; 
+            _current_player = _current_player == _player1 ? _player2 : _player1;
+
+            //update _board_history
+            _board_history.Insert(0, _board_history[0]);
+            if (_board_history.Count == 4)
+                _board_history.RemoveAt(3);
+
             if (_pass_count >= 2)
             {
                 JObject scores = RuleCheckerWrapper.Score(_board_history[0].GetBoard());
@@ -95,6 +101,7 @@ namespace RefereeSpace
             //update _board_history
             BoardWrapper b = new BoardWrapper(_board_history[0].GetBoard(), _board_history[0].GetSize());
             b.PlaceStone(_current_player.GetStone(), point);
+            b.RemoveDeadStones();
             _board_history.Insert(0, b);
             if (_board_history.Count == 4)
                 _board_history.RemoveAt(3);
