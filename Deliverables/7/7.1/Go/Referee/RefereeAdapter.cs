@@ -33,19 +33,15 @@ namespace RefereeSpace
             //Register Players
             if (!_isSet_player1)
             {
-                //Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
                 _isSet_player1 = true;
 
                 jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>()))));
             }
             else if (!_isSet_player2)
             {
-                //Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
                 _isSet_player2 = true;
 
                 jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>()))));
-
-                //PrintBoardHistory();
             }
             //Play out the match
             else
@@ -67,8 +63,47 @@ namespace RefereeSpace
                     foreach (PlayerWrapper victor in victors)
                         names.Add(victor.GetName());
 
-                    //Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
                     jTokenList.Add(JToken.Parse(JsonConvert.SerializeObject(names.ToArray())));
+
+                    throw new RefereeException("Game has ended");
+                }
+            }
+        }
+
+        //Version of JsonCommand that writes to console instead of adding to a JToken List
+        public void JsonCommand(JToken jtoken)
+        {
+            //Register Players
+            if (!_isSet_player1)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
+                _isSet_player1 = true;
+            }
+            else if (!_isSet_player2)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(_referee.Register(jtoken.ToObject<string>())));
+                _isSet_player2 = true;
+                PrintBoardHistory();
+            }
+            //Play out the match
+            else
+            {
+                string play = jtoken.ToObject<string>();
+                try
+                {
+                    if (play == "pass")
+                        _referee.Pass();
+                    else
+                        _referee.Play(play);
+                }
+                catch (RefereeException)
+                {
+                    List<PlayerWrapper> victors = _referee.GetVictors();
+                    List<string> names = new List<string>();
+                    foreach (PlayerWrapper victor in victors)
+                        names.Add(victor.GetName());
+
+                    Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
 
                     throw new RefereeException("Game has ended");
                 }
