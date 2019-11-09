@@ -108,4 +108,21 @@ namespace CustomExceptions
         {
         }
     }
+
+    public class PlayerClientException : Exception
+    {
+        public PlayerClientException()
+        {
+        }
+
+        public PlayerClientException(string message)
+            : base(message)
+        {
+        }
+
+        public PlayerClientException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

@@ -12,26 +12,12 @@ using Network.Attributes;
 [PacketRequest(typeof(PlayerRequestPacket))]
 public class PlayerResponsePacket : ResponsePacket
 {
-    public PlayerResponsePacket(JToken ResponseJToken, RequestPacket request)
+    public PlayerResponsePacket(string ResponseJson, RequestPacket request)
             : base(request)
     {
-        this.ResponseJToken = ResponseJToken;
+        Response = ResponseJson;
     }
 
-    [PacketIgnoreProperty]
-    public JToken ResponseJToken { get; set; }
-
+    //This is not a string, it's a Json data type
     public string Response { get; set; }
-
-    public override void BeforeSend()
-    {
-        Response = JsonConvert.SerializeObject(ResponseJToken);
-        base.BeforeSend();
-    }
-
-    public override void BeforeReceive()
-    {
-        ResponseJToken = JToken.Parse(Response);
-        base.BeforeReceive();
-    }
 }

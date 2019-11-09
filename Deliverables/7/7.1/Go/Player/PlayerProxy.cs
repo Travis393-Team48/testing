@@ -6,51 +6,84 @@ using Network.Enums;
 using Network.Packets;
 using System.Threading;
 using System.Threading.Tasks;
-using TestServerClientPackets;
 
 namespace PlayerSpace
 {
+    /* Server-side Player (implements IPlayer)
+     * Networks between some server and a PlayerClient
+     * Holds a server-side listener
+     * 
+     * Sends requests to the PlayerClient using Packets
+     * Packets contains a JArray in a generic Json data format (string)
+     * First item of JArray is the method name that should be called on client side
+     * Other items are arguments passed to method
+     */
     class PlayerProxy : IPlayer
     {
-        ServerConnectionContainer serverConnectionContainer;
-        string _response;
+        ServerConnectionContainer _serverConnectionContainer;
 
         public PlayerProxy(int port)
         {
             //Create a new server container.
-            serverConnectionContainer = ConnectionFactory.CreateServerConnectionContainer(port, false);
-
-            //Set a delegate which will be called if we receive a connection
-            serverConnectionContainer.ConnectionEstablished += ConnectionEstablished;
+            _serverConnectionContainer = ConnectionFactory.CreateServerConnectionContainer(port, false);
 
             //Start listening on port port
-            serverConnectionContainer.StartTCPListener();
+            _serverConnectionContainer.StartTCPListener();
         }
 
-        private void ConnectionEstablished(Connection connection, ConnectionType connectionType)
+        public string Register(string name, string aiType, int n)
         {
-            //connection.RegisterPacketHandler<PlayerResponsePacket>(PlayerResponseReceived, this);
-            GetStoneAsync();
+            Task<string> response = RegisterAsync(name, aiType, n);
+            while (!response.IsCompleted) { }
+            return response.Result;
         }
 
-        private void PlayerResponseReceived(PlayerResponsePacket response, Connection connection)
+        private async Task<string> RegisterAsync(string name, string aiType, int n)
         {
-            Console.WriteLine($"Response received {response.ResponseJToken}");
-            _response = response.Response;
+            JArray array = new JArray();
+            array.Add("Register");
+            array.Add(name);
+            array.Add(aiType);
+            array.Add(n);
+
+            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
+            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
+            return JsonConvert.DeserializeObject<string>(response.Response);
         }
 
         public void ReceiveStones(string stone)
         {
-            PlayerRequestPacket packet = new PlayerRequestPacket(JToken.Parse(JsonConvert.SerializeObject("B")));
-            serverConnectionContainer.TCP_Connections[0].Send(packet);
-            Console.WriteLine("Stones Sent");
+            Task response = ReceiveStonesAsync(stone);
+            while (!response.IsCompleted) { }
+            return;
+        }
+
+        private async Task ReceiveStonesAsync(string stone)
+        {
+            JArray array = new JArray();
+            array.Add("ReceiveStones");
+            array.Add(stone);
+
+            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
+            await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
         }
 
         public string MakeAMove(string[][][] boards)
         {
-            PlayerRequestPacket packet = new PlayerRequestPacket(JToken.Parse(JsonConvert.SerializeObject("string")));
-            serverConnectionContainer.TCP_Connections[0].Send(packet, this);
-            return _response.ToString();
+            Task<string> response = MakeAMoveAsync(boards);
+            while (!response.IsCompleted) { }
+            return response.Result; ;
+        }
+
+        private async Task<string> MakeAMoveAsync(string[][][] boards)
+        {
+            JArray array = new JArray();
+            array.Add("MakeAMove");
+            array.Add(boards);
+
+            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
+            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
+            return JsonConvert.DeserializeObject<string>(response.Response);
         }
 
         public string GetStone()
@@ -60,28 +93,31 @@ namespace PlayerSpace
             return response.Result;
         }
 
-        public async Task<string> GetStoneAsync()
+        private async Task<string> GetStoneAsync()
         {
-            PlayerRequestPacket packet = new PlayerRequestPacket(JToken.Parse(JsonConvert.SerializeObject("GetStone")));
-            //PlayerResponsePacket response = await serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(new RequestPacket());
+            JArray array = new JArray();
+            array.Add("GetStone");
 
-            CalculationResponse response = await serverConnectionContainer.TCP_Connections[0].SendAsync<CalculationResponse>(new CalculationRequest(10, 10));
-
-            //Console.WriteLine($"Response received {response.ResponseJToken}");
-            _response = response.Result.ToString();
-            return _response;
-        }
-
-        private PlayerResponsePacket Test()
-        {
-            return new PlayerResponsePacket(JToken.Parse(JsonConvert.SerializeObject("GetStone")), new RequestPacket());
+            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
+            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
+            return JsonConvert.DeserializeObject<string>(response.Response);
         }
 
         public string GetName()
         {
-            PlayerRequestPacket packet = new PlayerRequestPacket(JToken.Parse(JsonConvert.SerializeObject("string")));
-            serverConnectionContainer.TCP_Connections[0].Send(packet, this);
-            return _response.ToString();
+            Task<string> response = GetNameAsync();
+            while (!response.IsCompleted) { }
+            return response.Result;
+        }
+
+        private async Task<string> GetNameAsync()
+        {
+            JArray array = new JArray();
+            array.Add("GetName");
+
+            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
+            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
+            return JsonConvert.DeserializeObject<string>(response.Response);
         }
 
 

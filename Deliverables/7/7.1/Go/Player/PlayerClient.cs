@@ -1,25 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CustomExceptions;
-using System.Net;
-using System.Net.Sockets;
 using Network;
 using Network.Enums;
-using Network.Packets;
-using Network.Interfaces;
-using Network.RSA;
-using TestServerClientPackets;
 
 namespace PlayerSpace
 {
+    /* Server-side Player
+     * Networks between PlayerProxy and a Player
+     * Holds a client-side listener
+     * Establishes a connection to server and PacketHandler when created
+     * 
+     * When a PlayerRequestPacket is received, deciphers the packet
+     *  and calls a function in PlayerWrapper depending the packet
+     * May also send a response message to the server
+     */
     public class PlayerClient
     {
-        private PlayerAdapter _player;
+        private PlayerWrapper _player;
 
         ClientConnectionContainer clientConnectionContainer;
 
@@ -28,6 +27,8 @@ namespace PlayerSpace
             clientConnectionContainer = ConnectionFactory.CreateClientConnectionContainer(ip, port);
             clientConnectionContainer.ConnectionEstablished += ConnectionEstablished;
             clientConnectionContainer.ConnectionLost += ConnectionLost;
+
+            _player = new PlayerWrapper(false);
         }
 
         private void ConnectionEstablished(Connection connection, ConnectionType connectionType)
@@ -37,9 +38,6 @@ namespace PlayerSpace
 
             if (connectionType == ConnectionType.TCP)
                 Console.WriteLine($"{connectionType} Connection received {connection.IPRemoteEndPoint}.");
-
-            if (connectionType == ConnectionType.TCP)
-                connection.RegisterStaticPacketHandler<CalculationRequest>(calculationReceived);
         }
 
         private void ConnectionLost(Connection connection, ConnectionType connectionType, CloseReason closeReason)
@@ -47,19 +45,44 @@ namespace PlayerSpace
             Console.WriteLine("Connection Lost: " + closeReason);
         }
 
-        private static void PlayerRequestReceived(PlayerRequestPacket packet, Connection connection)
+        private void PlayerRequestReceived(PlayerRequestPacket packet, Connection connection)
         {
-            Console.WriteLine($"Request received {packet.RequestJToken}");
+            Console.WriteLine($"Request received {packet.Request}");
 
-            connection.Send(new PlayerResponsePacket(packet.RequestJToken, packet));
+            JArray requestArray = JsonConvert.DeserializeObject<JArray>(packet.Request);
+            PlayerResponsePacket response;
+
+            switch (requestArray[0].ToObject<string>())
+            {
+                case "Register":
+                    string register = _player.Register(
+                        requestArray[1].ToObject<string>(),
+                        requestArray[2].ToObject<string>(),
+                        requestArray[3].ToObject<int>());
+                    response = new PlayerResponsePacket(JsonConvert.SerializeObject(register), packet);
+                    connection.Send(response);
+                    return;
+                case "ReceiveStones":
+                    _player.ReceiveStones(requestArray[1].ToObject<string>());
+                    return;
+                case "MakeAMove":
+                    string move = _player.MakeAMove(requestArray[1].ToObject<string[][][]>());
+                    response = new PlayerResponsePacket(JsonConvert.SerializeObject(move), packet);
+                    connection.Send(response);
+                    return;
+                case "GetStone":
+                    string stone = _player.GetStone();
+                    response = new PlayerResponsePacket(JsonConvert.SerializeObject(stone), packet);
+                    connection.Send(response);
+                    return;
+                case "GetName":
+                    string name = _player.GetStone();
+                    response = new PlayerResponsePacket(JsonConvert.SerializeObject(name), packet);
+                    connection.Send(response);
+                    return;
+            }
+
+            throw new PlayerClientException("Invalid operation sent to PlayerClient");
         }
-
-        private static void calculationReceived(CalculationRequest packet, Connection connection)
-        {
-            //4. Handle incoming packets.
-            connection.Send(new CalculationResponse(packet.X + packet.Y, packet));
-        }
-
-
     }
 }

@@ -15,25 +15,31 @@ namespace PlayerSpace
      */
     public class PlayerWrapper : IPlayer
     {
-        private Player _player;
+        private IPlayer _player;
+        private bool _register_flag;
         private bool _receive_stones_flag;
 
-        public PlayerWrapper(string name, string aiType)
+        public PlayerWrapper(bool remote, int port = 0)
         {
-            ValidationMethods.ValidateAIType(aiType);
-            _player = new Player(name, aiType);
+            if (remote)
+                _player = new PlayerProxy(port);
+            else
+                _player = new Player();
         }
 
-        public PlayerWrapper(string name, string aiType, int n)
+        public string Register(string name, string aiType, int n = 1)
         {
             ValidationMethods.ValidateAIType(aiType);
             ValidationMethods.ValidateN(n);
-            _player = new Player(name, aiType, n);
+            _register_flag = true;
+            return _player.Register(name, aiType, n);
         }
 
         public void ReceiveStones(string stone)
         {
             ValidationMethods.ValidateStone(stone);
+            if (!_register_flag)
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register not called before ReceiveStones");
             _player.ReceiveStones(stone);
             _receive_stones_flag = true;
         }
@@ -41,6 +47,8 @@ namespace PlayerSpace
         public string MakeAMove(string[][][] boards)
         {
             ValidationMethods.ValidateBoards(boards);
+            if (!_register_flag)
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register not called before MakeAMove");
             if (!_receive_stones_flag)
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: ReceiveStones not called before MakeAMove");
             return _player.MakeAMove(boards);
@@ -48,11 +56,15 @@ namespace PlayerSpace
 
         public string GetStone()
         {
+            if (!_receive_stones_flag)
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: ReceiveStones not called before GetStone");
             return _player.GetStone();
         }
 
         public string GetName()
         {
+            if (!_register_flag)
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register not called before GetName");
             return _player.GetName();
         }
     }
