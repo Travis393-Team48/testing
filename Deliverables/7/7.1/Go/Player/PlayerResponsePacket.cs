@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Network.Attributes;
 
+[PacketRequest(typeof(PlayerRequestPacket))]
 public class PlayerResponsePacket : ResponsePacket
 {
     public PlayerResponsePacket(JToken ResponseJToken, RequestPacket request)
@@ -26,5 +27,11 @@ public class PlayerResponsePacket : ResponsePacket
     {
         Response = JsonConvert.SerializeObject(ResponseJToken);
         base.BeforeSend();
+    }
+
+    public override void BeforeReceive()
+    {
+        ResponseJToken = JToken.Parse(Response);
+        base.BeforeReceive();
     }
 }

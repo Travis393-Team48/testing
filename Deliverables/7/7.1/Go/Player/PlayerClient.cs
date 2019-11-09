@@ -12,35 +12,52 @@ using Network;
 using Network.Enums;
 using Network.Packets;
 using Network.Interfaces;
+using Network.RSA;
+using TestServerClientPackets;
 
 namespace PlayerSpace
 {
     public class PlayerClient
     {
+        private PlayerAdapter _player;
+
         ClientConnectionContainer clientConnectionContainer;
 
-        public PlayerClient()
+        public PlayerClient(string ip, int port)
         {
-            clientConnectionContainer = ConnectionFactory.CreateClientConnectionContainer("127.0.0.1", 8080);
+            clientConnectionContainer = ConnectionFactory.CreateClientConnectionContainer(ip, port);
             clientConnectionContainer.ConnectionEstablished += ConnectionEstablished;
-
-            Console.WriteLine("hello world");
-
+            clientConnectionContainer.ConnectionLost += ConnectionLost;
         }
 
         private void ConnectionEstablished(Connection connection, ConnectionType connectionType)
         {
-            clientConnectionContainer.TcpConnection.RegisterPacketHandler<PlayerRequestPacket>(PlayerRequestReceived, this);
+            if (connectionType == ConnectionType.TCP)
+                connection.RegisterPacketHandler<PlayerRequestPacket>(PlayerRequestReceived, this);
+
+            if (connectionType == ConnectionType.TCP)
+                Console.WriteLine($"{connectionType} Connection received {connection.IPRemoteEndPoint}.");
+
+            if (connectionType == ConnectionType.TCP)
+                connection.RegisterStaticPacketHandler<CalculationRequest>(calculationReceived);
         }
 
-        private void TcpConnection_ConnectionClosed(CloseReason arg1, Connection arg2)
+        private void ConnectionLost(Connection connection, ConnectionType connectionType, CloseReason closeReason)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Connection Lost: " + closeReason);
         }
 
-        private void PlayerRequestReceived(PlayerRequestPacket request, Connection connection)
+        private static void PlayerRequestReceived(PlayerRequestPacket packet, Connection connection)
         {
-            Console.WriteLine($"Request received {request.Request}");
+            Console.WriteLine($"Request received {packet.RequestJToken}");
+
+            connection.Send(new PlayerResponsePacket(packet.RequestJToken, packet));
+        }
+
+        private static void calculationReceived(CalculationRequest packet, Connection connection)
+        {
+            //4. Handle incoming packets.
+            connection.Send(new CalculationResponse(packet.X + packet.Y, packet));
         }
 
 

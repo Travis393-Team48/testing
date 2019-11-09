@@ -21,4 +21,10 @@ public class PlayerRequestPacket : RequestPacket
         base.BeforeSend();
     }
 
+    public override void BeforeReceive()
+    {
+        RequestJToken = JToken.Parse(Request);
+        base.BeforeReceive();
+    }
+
 }
