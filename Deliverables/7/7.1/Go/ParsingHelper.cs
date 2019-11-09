@@ -8,7 +8,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-/* Static class that provides methods for parsing
+/*
+ * Static class that provides methods for parsing
  */
 public static class ParsingHelper
 {

@@ -17,8 +17,16 @@ namespace PlayerSpace
     {
         static void Main(string[] args)
         {
+	        string IP;
+	        int port;
+
+	        cfJson = configJson("../go.config");
+	        IP = cfJson["IP"];
+	        port = cfJson["port"];
+
+
             //Create a new server container.
-            ServerConnectionContainer serverConnectionContainer = ConnectionFactory.CreateServerConnectionContainer(8080, false);
+            ServerConnectionContainer serverConnectionContainer = ConnectionFactory.CreateServerConnectionContainer(port, false);
 
             //3. Set a delegate which will be called if we receive a connection
             serverConnectionContainer.ConnectionEstablished += ConnectionEstablished;
@@ -38,6 +46,15 @@ namespace PlayerSpace
             connection.Send(packet);
         }
 
+	    private string configJson(string file)
+	    {
+		    string json;
+		    using (StreamReader sr = new StreamReader(file))
+		    {
+			    json = sr.ReadToEnd();
+		    }
 
+		    return json;
+	    }
     }
 }

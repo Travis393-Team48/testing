@@ -21,11 +21,16 @@ namespace PlayerSpace
 
         public PlayerClient()
         {
-            clientConnectionContainer = ConnectionFactory.CreateClientConnectionContainer("127.0.0.1", 8080);
+	        string IP;
+	        int port;
+	        cfJson = configJson("../go.config");
+	        IP = cfJson["IP"];
+	        port = cfJson["port"];
+
+            clientConnectionContainer = ConnectionFactory.CreateClientConnectionContainer(IP, port);
             clientConnectionContainer.ConnectionEstablished += ConnectionEstablished;
 
             Console.WriteLine("hello world");
-
         }
 
         private void ConnectionEstablished(Connection connection, ConnectionType connectionType)
@@ -43,6 +48,15 @@ namespace PlayerSpace
             Console.WriteLine($"Request received {request.Request}");
         }
 
+	    private string configJson(string file)
+	    {
+		    string json;
+		    using (StreamReader sr = new StreamReader(file))
+		    {
+			    json = sr.ReadToEnd();
+		    }
 
+		    return json;
+	    }
     }
 }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayerSpace;
+using System.Configuration;
+using System.Collections.Specialized;
 
 static class TestDriver
 {
