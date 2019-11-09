@@ -16,10 +16,15 @@ namespace PlayerSpace
          * Provides a method called JsonCommand which is how Json Inputs interact with Player
          * Json Commands must be in the format ["register"], ["receive-stones", Stone], and ["make-a-move", Boards]
          * Returns JSON data as a JToken (if input is valid) 
-         * Holds an Player object
+         * Holds an PlayerWrapper object
          */
 
         private PlayerWrapper _player;
+
+        public PlayerAdapter(bool remote)
+        {
+            _player = new PlayerWrapper(remote);
+        }
 
         public JToken JsonCommand(JToken jtoken, string name = "no name", string AIType = "dumb", int n = 1)
         {
@@ -28,10 +33,7 @@ namespace PlayerSpace
             switch (jtoken.ElementAt(0).ToObject<string>())
             {
                 case "register":
-                    if (AIType == "less dumb")
-                        _player = new PlayerWrapper(name, AIType, n);
-                    else
-                        _player = new PlayerWrapper(name, AIType);
+                    name = _player.Register(name, AIType, n);
                     return JToken.Parse(JsonConvert.SerializeObject(name));
                 case "receive-stones":
                     _player.ReceiveStones(jtoken.ElementAt(1).ToObject<string>());

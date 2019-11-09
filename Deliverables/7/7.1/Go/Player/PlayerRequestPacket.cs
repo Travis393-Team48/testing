@@ -5,20 +5,11 @@ using Network.Attributes;
 
 public class PlayerRequestPacket : RequestPacket
 {
-    public PlayerRequestPacket(JToken RequestJToken)
+    public PlayerRequestPacket(string RequestJson)
     {
-        this.RequestJToken = RequestJToken;
+        Request = RequestJson;
     }
-
-    [PacketIgnoreProperty]
-    public JToken RequestJToken { get; set; }
 
     public string Request { get; set; }
-
-    public override void BeforeSend()
-    {
-        Request = JsonConvert.SerializeObject(RequestJToken);
-        base.BeforeSend();
-    }
 
 }

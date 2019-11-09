@@ -8,6 +8,8 @@ namespace PlayerSpace
 {
     interface IPlayer
     {
+        string Register(string name, string aiType, int n);
+
         void ReceiveStones(string stone);
 
         string MakeAMove(string[][][] boards);

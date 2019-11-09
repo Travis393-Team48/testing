@@ -76,6 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomComparators.cs" />
+    <Compile Include="Player\CalculationRequest.cs" />
+    <Compile Include="Player\CalculationResponse.cs" />
+    <Compile Include="Player\PlayerProxy.cs" />
     <Compile Include="Player\PlayerResponsePacket.cs" />
     <Compile Include="Player\PlayerRequestPacket.cs" />
     <Compile Include="Player\IPlayer.cs" />

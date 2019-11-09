@@ -11,28 +11,21 @@ namespace PlayerSpace
 {
     class Player : IPlayer
     {
-        readonly string _name;
+        string _name;
         string _stone;
-        readonly string _AIType;
-        readonly int _n;
-        
-        /*
-         * Constructor for dumb Player
-         */
-        public Player(string name, string aiType)
-        {
-            _name = name;
-            _AIType = aiType;
-        }
+        string _AIType;
+        int _n;
 
-        /*
-         * Constructor for less dumb Player
+        /* 
+         * Initializes Player
          */
-        public Player(string name, string aiType, int n)
+        public string Register(string name, string aiType, int n)
         {
             _name = name;
             _AIType = aiType;
             _n = n;
+
+            return _name;
         }
 
         /*
