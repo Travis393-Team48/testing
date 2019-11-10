@@ -36,14 +36,16 @@ namespace RefereeSpace
         {
             if (_player1 == null)
             {
-                _player1 = new PlayerWrapper(name, aiType);
+                _player1 = new PlayerWrapper(false);
+                _player1.Register(name, aiType);
                 _player1.ReceiveStones("B");
                 _current_player = _player1;
                 return "B";
             }
             else if (_player2 == null)
             {
-                _player2 = new PlayerWrapper(name, aiType);
+                _player2 = new PlayerWrapper(false);
+                _player2.Register(name, aiType);
                 _player2.ReceiveStones("W");
                 return "W";
             }

@@ -64,6 +64,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlayeProxyTests.cs" />
     <Compile Include="RuleCheckerUnitTests.cs" />
     <Compile Include="PlayerUnitTests.cs" />
     <Compile Include="RefereeUnitTests.cs" />

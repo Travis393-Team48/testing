@@ -16,40 +16,51 @@ namespace PlayerSpace
          * Provides a method called JsonCommand which is how Json Inputs interact with Player
          * Json Commands must be in the format ["register"], ["receive-stones", Stone], and ["make-a-move", Boards]
          * Returns JSON data as a JToken (if input is valid) 
-         * Holds an PlayerWrapper object
+         * Holds an PlayerWrapper object which can hold either a Player or PlayerProxy
          */
 
         private PlayerWrapper _player;
 
-        public PlayerAdapter(bool remote)
+        public PlayerAdapter(bool remote, int port = 0)
         {
-            _player = new PlayerWrapper(remote);
+            _player = new PlayerWrapper(remote, port);
         }
 
         public JToken JsonCommand(JToken jtoken, string name = "no name", string AIType = "dumb", int n = 1)
         {
             JsonValidation.ValidateJTokenPlayer(jtoken);
 
-            switch (jtoken.ElementAt(0).ToObject<string>())
+            try
             {
-                case "register":
-                    name = _player.Register(name, AIType, n);
-                    return JToken.Parse(JsonConvert.SerializeObject(name));
-                case "receive-stones":
-                    _player.ReceiveStones(jtoken.ElementAt(1).ToObject<string>());
-                    return JToken.Parse(JsonConvert.SerializeObject(null));
-                case "make-a-move":
-                    try
-                    {
-                        return JToken.Parse(JsonConvert.SerializeObject(_player.MakeAMove(
-                            jtoken.ElementAt(1).ToObject<string[][][]>())));
-                    }
-                    catch (PlayerException e)
-                    {
-                        return JToken.Parse(JsonConvert.SerializeObject(e.Message));
-                    }
+                switch (jtoken.ElementAt(0).ToObject<string>())
+                {
+                    case "register":
+                        name = _player.Register(name, AIType, n);
+                        return JToken.Parse(JsonConvert.SerializeObject(name));
+                    case "receive-stones":
+                        _player.ReceiveStones(jtoken.ElementAt(1).ToObject<string>());
+                        return JToken.Parse(JsonConvert.SerializeObject(null));
+                    case "make-a-move":
+                        try
+                        {
+                            return JToken.Parse(JsonConvert.SerializeObject(_player.MakeAMove(
+                                jtoken.ElementAt(1).ToObject<string[][][]>())));
+                        }
+                        catch (PlayerException e)
+                        {
+                            return JToken.Parse(JsonConvert.SerializeObject(e.Message));
+                        }
+                        catch (PlayerProxyException e)
+                        {
+                            return JToken.Parse(JsonConvert.SerializeObject(e.Message));
+                        }
+                }
             }
 
+            catch (WrapperException e)
+            {
+                throw new InvalidJsonInputException("A wrapper exception occurred", e);
+            }
             throw new InvalidJsonInputException("Unrecognized JSONCommand passed to PlayerWrapper");
 
         }

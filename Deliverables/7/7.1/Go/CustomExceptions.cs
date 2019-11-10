@@ -125,4 +125,21 @@ namespace CustomExceptions
         {
         }
     }
+
+    public class PlayerProxyException : Exception
+    {
+        public PlayerProxyException()
+        {
+        }
+
+        public PlayerProxyException(string message)
+            : base(message)
+        {
+        }
+
+        public PlayerProxyException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

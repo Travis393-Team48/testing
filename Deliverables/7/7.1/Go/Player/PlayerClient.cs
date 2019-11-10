@@ -29,6 +29,8 @@ namespace PlayerSpace
             clientConnectionContainer.ConnectionLost += ConnectionLost;
 
             _player = new PlayerWrapper(false);
+
+            while (!clientConnectionContainer.IsAlive) { }
         }
 
         private void ConnectionEstablished(Connection connection, ConnectionType connectionType)
@@ -36,18 +38,18 @@ namespace PlayerSpace
             if (connectionType == ConnectionType.TCP)
                 connection.RegisterPacketHandler<PlayerRequestPacket>(PlayerRequestReceived, this);
 
-            if (connectionType == ConnectionType.TCP)
-                Console.WriteLine($"{connectionType} Connection received {connection.IPRemoteEndPoint}.");
+            //if (connectionType == ConnectionType.TCP)
+            //    Console.WriteLine($"{connectionType} Connection received {connection.IPRemoteEndPoint}.");
         }
 
         private void ConnectionLost(Connection connection, ConnectionType connectionType, CloseReason closeReason)
         {
-            Console.WriteLine("Connection Lost: " + closeReason);
+            //Console.WriteLine("Connection Lost: " + closeReason);
         }
 
         private void PlayerRequestReceived(PlayerRequestPacket packet, Connection connection)
         {
-            Console.WriteLine($"Request received {packet.Request}");
+            //Console.WriteLine($"Request received {packet.Request}");
 
             JArray requestArray = JsonConvert.DeserializeObject<JArray>(packet.Request);
             PlayerResponsePacket response;
@@ -66,7 +68,15 @@ namespace PlayerSpace
                     _player.ReceiveStones(requestArray[1].ToObject<string>());
                     return;
                 case "MakeAMove":
-                    string move = _player.MakeAMove(requestArray[1].ToObject<string[][][]>());
+                    string move;
+                    try
+                    {
+                        move = _player.MakeAMove(requestArray[1].ToObject<string[][][]>());
+                    }
+                    catch (PlayerException e)
+                    {
+                        move = e.Message;
+                    }
                     response = new PlayerResponsePacket(JsonConvert.SerializeObject(move), packet);
                     connection.Send(response);
                     return;

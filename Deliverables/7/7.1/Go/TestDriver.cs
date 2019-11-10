@@ -23,7 +23,7 @@ static class TestDriver
 
         List<JToken> finalList = new List<JToken>();
 
-        PlayerAdapter aiPlayer = new PlayerAdapter();
+        PlayerAdapter aiPlayer = new PlayerAdapter(false);
         JToken toAdd;
         foreach (JToken jtoken in jTokenList)
         {

@@ -9,6 +9,15 @@ using BoardSpace;
 
 namespace PlayerSpace
 {
+    /*
+     * Simulates an aiPlayer
+     * What strategy the aiPlayer uses depends on aiType field
+     * options are "dumb" and "less dumb"
+     * 
+     * Register must be called before use of other functions
+     * ReceiveStones must be called before MakeAMove
+     * GetStones must be called after ReceiveStones
+     */
     class Player : IPlayer
     {
         string _name;

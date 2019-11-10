@@ -12,6 +12,12 @@ namespace PlayerSpace
     /* 
      * Wrapper for the Player Class
      * Provides checks to make sure other classes interact correctly with the player
+     * Holds either a Player or PlayerProxy Object
+     * 
+     * Protocals of Interaction:
+     *  Register must be called before use of other functions
+     *  ReceiveStones must be called before MakeAMove
+     *  GetStones must be called after ReceiveStones
      */
     public class PlayerWrapper : IPlayer
     {
@@ -31,6 +37,8 @@ namespace PlayerSpace
         {
             ValidationMethods.ValidateAIType(aiType);
             ValidationMethods.ValidateN(n);
+            if (_register_flag)
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: ReceiveStones called twice");
             _register_flag = true;
             return _player.Register(name, aiType, n);
         }
@@ -40,6 +48,8 @@ namespace PlayerSpace
             ValidationMethods.ValidateStone(stone);
             if (!_register_flag)
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register not called before ReceiveStones");
+            if (_receive_stones_flag)
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: ReceiveStones called twice");
             _player.ReceiveStones(stone);
             _receive_stones_flag = true;
         }
