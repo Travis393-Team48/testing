@@ -35,10 +35,24 @@ namespace PlayerSpace
                 switch (jtoken.ElementAt(0).ToObject<string>())
                 {
                     case "register":
-                        name = _player.Register(name, AIType, n);
-                        return JToken.Parse(JsonConvert.SerializeObject(name));
+                        try
+                        {
+                            name = _player.Register(name, AIType, n);
+                            return JToken.Parse(JsonConvert.SerializeObject(name));
+                        }
+                        catch(JsonSerializationException e)
+                        {
+                            throw new InvalidJsonInputException(e.Message);
+                        }
                     case "receive-stones":
-                        _player.ReceiveStones(jtoken.ElementAt(1).ToObject<string>());
+                        try
+                        {
+                            _player.ReceiveStones(jtoken.ElementAt(1).ToObject<string>());
+                        }
+                        catch (JsonSerializationException e)
+                        {
+                            throw new InvalidJsonInputException(e.Message);
+                        }
                         return JToken.Parse(JsonConvert.SerializeObject(null));
                     case "make-a-move":
                         try
@@ -53,6 +67,10 @@ namespace PlayerSpace
                         catch (PlayerProxyException e)
                         {
                             return JToken.Parse(JsonConvert.SerializeObject(e.Message));
+                        }
+                        catch (JsonSerializationException e)
+                        {
+                            throw new InvalidJsonInputException(e.Message);
                         }
                 }
             }
