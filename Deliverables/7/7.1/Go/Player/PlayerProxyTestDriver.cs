@@ -22,9 +22,6 @@ namespace PlayerSpace
             while ((input = Console.ReadLine()) != null)
                 console += input;
 
-            //Parse console input
-            List<JToken> jTokenList = ParsingHelper.ParseJson(console);
-
             List<JToken> finalList = new List<JToken>();
 
             string go_player = File.ReadAllText("go-player.config");
@@ -37,11 +34,19 @@ namespace PlayerSpace
 
             PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
 
-            //Console.ReadLine();
+            //Parse console input while testing
+            JsonTextReader reader = new JsonTextReader(new StringReader(console));
+            reader.SupportMultipleContent = true;
+            JsonSerializer serializer = new JsonSerializer();
 
             JToken toAdd;
-            foreach (JToken jtoken in jTokenList)
+            while (true)
             {
+                //Parse console input while testing
+                if (!reader.Read())
+                    break;
+                JToken jtoken = serializer.Deserialize<JToken>(reader);
+
                 try
                 {
                     toAdd = aiPlayer.JsonCommand(jtoken, "no name", "less dumb", depth["depth"].ToObject<int>());
