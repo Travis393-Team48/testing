@@ -53,6 +53,10 @@ namespace PlayerSpace
                         {
                             throw new InvalidJsonInputException(e.Message);
                         }
+                        catch (ArgumentException e)
+                        {
+                            throw new InvalidJsonInputException(e.Message);
+                        }
                         return JToken.Parse(JsonConvert.SerializeObject(null));
                     case "make-a-move":
                         try
