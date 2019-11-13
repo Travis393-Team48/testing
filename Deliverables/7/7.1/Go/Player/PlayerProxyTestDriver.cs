@@ -18,64 +18,47 @@ namespace PlayerSpace
             string console = "";
             string input;
 
-	        List<JToken> finalList = new List<JToken>();
+            //Read from console
+            while ((input = Console.ReadLine()) != null)
+                console += input;
 
-	        string go_player = File.ReadAllText("go-player.config");
-	        string go = File.ReadAllText("go.config");
+            List<JToken> finalList = new List<JToken>();
 
-	        JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
-	        JObject depth = JsonConvert.DeserializeObject<JObject>(go_player);
+            string go_player = File.ReadAllText("go-player.config");
+            string go = File.ReadAllText("go.config");
 
-	        PlayerAdapter aiPlayer = new PlayerAdapter(true, ipPort["port"].ToObject<int>());
+            JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
+            JObject depth = JsonConvert.DeserializeObject<JObject>(go_player);
 
-	        PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
+            PlayerAdapter aiPlayer = new PlayerAdapter(true, ipPort["port"].ToObject<int>());
 
-	        //Console.ReadLine();
+            PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
 
-	        JToken toAdd;
+            //Parse console input while testing
+            JsonTextReader reader = new JsonTextReader(new StringReader(console));
+            reader.SupportMultipleContent = true;
+            JsonSerializer serializer = new JsonSerializer();
 
-			//Read from console
-			while ((input = Console.ReadLine()) != null)
-	        {
-		        console += input;
-		        try
-		        {
-			        List<JToken> curr = ParsingHelper.ParseJson(console);
-			        toAdd = aiPlayer.JsonCommand(curr[0], "no name", "less dumb", depth["depth"].ToObject<int>());
-			        if (toAdd.Type != JTokenType.Null)
-				        finalList.Add(toAdd);
-			        console = "";
-		        }
-		        catch (InvalidJsonInputException)
-		        {
-			        finalList.Add("GO has gone crazy!");
-			        break;
-		        }
-		        catch (Newtonsoft.Json.JsonReaderException)
-		        {
-					Console.WriteLine("blah");
-		        }
-			}
-                
+            JToken toAdd;
+            while (true)
+            {
+                //Parse console input while testing
+                if (!reader.Read())
+                    break;
+                JToken jtoken = serializer.Deserialize<JToken>(reader);
 
-            //Parse console input
-            //List<JToken> jTokenList = ParsingHelper.ParseJson(console);
-
-            
-            //foreach (JToken jtoken in jTokenList)
-            //{
-            //    try
-            //    {
-            //        toAdd = aiPlayer.JsonCommand(jtoken, "no name", "less dumb", depth["depth"].ToObject<int>());
-            //        if (toAdd.Type != JTokenType.Null)
-            //            finalList.Add(toAdd);
-            //    }
-            //    catch (InvalidJsonInputException)
-            //    {
-            //        finalList.Add("GO has gone crazy!");
-            //        break;
-            //    }
-            //}
+                try
+                {
+                    toAdd = aiPlayer.JsonCommand(jtoken, "no name", "less dumb", depth["depth"].ToObject<int>());
+                    if (toAdd.Type != JTokenType.Null)
+                        finalList.Add(toAdd);
+                }
+                catch (InvalidJsonInputException)
+                {
+                    finalList.Add("GO has gone crazy!");
+                    break;
+                }
+            }
 
             Console.WriteLine(JsonConvert.SerializeObject(finalList));
 

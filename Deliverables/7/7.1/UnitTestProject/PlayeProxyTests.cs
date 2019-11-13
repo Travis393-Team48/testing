@@ -71,8 +71,6 @@ namespace UnitTests
         {
             string json = ExtractJson(filePath);
 
-            //Parse console input
-            List<JToken> jTokenList = ParsingHelper.ParseJson(json);
             List<JToken> finalList = new List<JToken>();
 
             PlayerAdapter aiPlayer = new PlayerAdapter(true, _port);
@@ -80,9 +78,20 @@ namespace UnitTests
 
             _port++;
 
+            //Parse console input while testing
+            JsonTextReader reader = new JsonTextReader(new StringReader(json));
+            reader.SupportMultipleContent = true;
+            JsonSerializer serializer = new JsonSerializer();
+
             JToken toAdd;
-            foreach (JToken jtoken in jTokenList)
+            while (true)
             {
+                //Parse console input while testing
+                if (!reader.Read())
+                    break;
+                JToken jtoken = serializer.Deserialize<JToken>(reader);
+
+
                 try
                 {
                     toAdd = aiPlayer.JsonCommand(jtoken, "no name", "less dumb", 1);

@@ -15,8 +15,8 @@ static class TestDriver
         string input;
 
         //Read from console
-	    while ((input = Console.ReadLine()) != null)
-		    console += input;
+        while ((input = Console.ReadLine()) != null)
+            console += input;
 
         //Parse console input
         List<JToken> jTokenList = ParsingHelper.ParseJson(console);
