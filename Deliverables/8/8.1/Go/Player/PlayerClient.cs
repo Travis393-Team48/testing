@@ -4,10 +4,11 @@ using Newtonsoft.Json.Linq;
 using CustomExceptions;
 using Network;
 using Network.Enums;
+using Network.Packets;
 
 namespace PlayerSpace
 {
-    /* Server-side Player
+    /* Client-side Player
      * Networks between PlayerProxy and a Player
      * Holds a client-side listener
      * Establishes a connection to server and PacketHandler when created

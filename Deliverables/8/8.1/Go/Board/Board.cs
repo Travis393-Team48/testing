@@ -213,17 +213,17 @@ namespace BoardSpace
         /*
          * Removes dead stones from the board
          */
-        public void RemoveDeadStones()
+        public void RemoveDeadStones(string stone)
         {
-            List<string> points = GetPoints("B");
-            foreach (string point in points)
-                if (!Reachable(point, " "))
-                    RemoveStone("B", point);
+            stone = stone == "W" ? "B" : "W";
 
-            points = GetPoints("W");
+            List<string> points = GetPoints(stone);
+            List<string> deadPoints = new List<string>();
             foreach (string point in points)
                 if (!Reachable(point, " "))
-                    RemoveStone("W", point);
+                    deadPoints.Add(point);
+            foreach (string point in deadPoints)
+                RemoveStone(stone, point);
         }
 
         public int GetSize()

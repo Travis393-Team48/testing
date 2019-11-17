@@ -76,9 +76,10 @@ namespace BoardSpace
             return _board.GetBoard();
         }
 
-        public void RemoveDeadStones()
+        public void RemoveDeadStones(string stone)
         {
-            _board.RemoveDeadStones();
+            ValidationMethods.ValidateStone(stone);
+            _board.RemoveDeadStones(stone);
         }
     }
 }

@@ -43,7 +43,7 @@ static class ValidationMethods
         }
         catch
         {
-            throw new WrapperException("Invalid point passed to Wrapper: cannot be parsed");
+            throw new WrapperException("Invalid point passed to Wrapper: cannot be parsed" + point);
         }
         try
         {

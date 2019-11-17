@@ -105,7 +105,7 @@ namespace RefereeSpace
             //update _board_history
             BoardWrapper b = new BoardWrapper(_board_history[0].GetBoard(), _board_history[0].GetSize());
             b.PlaceStone(_current_player.GetStone(), point);
-            b.RemoveDeadStones();
+            b.RemoveDeadStones(_current_player.GetStone());
             _board_history.Insert(0, b);
             if (_board_history.Count == 4)
                 _board_history.RemoveAt(3);
