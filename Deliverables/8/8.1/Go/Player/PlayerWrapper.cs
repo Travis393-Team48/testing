@@ -38,7 +38,7 @@ namespace PlayerSpace
             ValidationMethods.ValidateAIType(aiType);
             ValidationMethods.ValidateN(n);
             if (_register_flag)
-                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: ReceiveStones called twice");
+                throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register called twice");
             _register_flag = true;
             return _player.Register(name, aiType, n);
         }

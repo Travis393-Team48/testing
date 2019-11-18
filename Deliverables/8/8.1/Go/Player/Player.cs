@@ -64,6 +64,12 @@ namespace PlayerSpace
 
             switch (_AIType)
             {
+                case "illegal":
+                    Random rng = new Random();
+                    if (rng.NextDouble() > 0.2)
+                        goto case "dumb";
+                    else
+                        return "illegal move";
                 case "less dumb":
                     string oppositeStone;
                     if (_stone == "B")

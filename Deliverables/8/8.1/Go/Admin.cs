@@ -30,16 +30,16 @@ namespace Go
             PlayerWrapper player2 = new PlayerWrapper(true, port);
 
             //Create local player
-            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
-            PlayerClient p = new PlayerClient(ip, port - 1);
+            Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            //PlayerClient p = new PlayerClient(ip, port - 1);
             PlayerClient player = new PlayerClient(ip, port);
 
-            player1.Register("player1", "dumb");
-            player2.Register("player2", "dumb");
+            string player1_name = player1.Register("player1", "illegal");
+            string player2_name = player2.Register("player2", "dumb");
             player1.ReceiveStones("B");
             player2.ReceiveStones("W");
-            referee.Register("player1", "dumb");
-            referee.Register("player2", "dumb");
+            referee.Register(player1_name);
+            referee.Register(player2_name);
 
             PlayerWrapper current_player = player1;
             string[][][] board_history;

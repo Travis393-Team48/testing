@@ -33,6 +33,7 @@ namespace PlayerSpace
 
             //Start listening on port port
             _serverConnectionContainer.StartTCPListener();
+            
         }
 
         public string Register(string name, string aiType, int n)
@@ -45,10 +46,13 @@ namespace PlayerSpace
         private async Task<string> RegisterAsync(string name, string aiType, int n)
         {
             JArray array = new JArray();
-            array.Add("Register");
-            array.Add(name);
-            array.Add(aiType);
-            array.Add(n);
+            array.Add("register");
+            if (aiType != "illegal")
+            {
+                array.Add(name);
+                array.Add(aiType);
+                array.Add(n);
+            }
 
             PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
             PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
@@ -65,7 +69,7 @@ namespace PlayerSpace
         private async Task ReceiveStonesAsync(string stone)
         {
             JArray array = new JArray();
-            array.Add("ReceiveStones");
+            array.Add("receive-stones");
             array.Add(stone);
 
             PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
@@ -82,7 +86,7 @@ namespace PlayerSpace
         private async Task<string> MakeAMoveAsync(string[][][] boards)
         {
             JArray array = new JArray();
-            array.Add("MakeAMove");
+            array.Add("make-a-move");
             array.Add(JToken.Parse(JsonConvert.SerializeObject(boards)));
 
             PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));

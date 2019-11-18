@@ -57,7 +57,7 @@ namespace PlayerSpace
 
             switch (requestArray[0].ToObject<string>())
             {
-                case "Register":
+                case "register":
                     string register = _player.Register(
                         requestArray[1].ToObject<string>(),
                         requestArray[2].ToObject<string>(),
@@ -65,10 +65,10 @@ namespace PlayerSpace
                     response = new PlayerResponsePacket(JsonConvert.SerializeObject(register), packet);
                     connection.Send(response);
                     return;
-                case "ReceiveStones":
+                case "receive-stones":
                     _player.ReceiveStones(requestArray[1].ToObject<string>());
                     return;
-                case "MakeAMove":
+                case "make-a-move":
                     string move;
                     try
                     {
