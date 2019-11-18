@@ -27,7 +27,7 @@ namespace Go
             RefereeWrapper referee = new RefereeWrapper(3);
 
             //Create local player
-            Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
             PlayerWrapper player1 = new PlayerWrapper(true, port);
 
             PlayerWrapper player2 = new PlayerWrapper(false);
@@ -58,11 +58,25 @@ namespace Go
                         referee.Play(next_move);
                     current_player = current_player == player1 ? player2 : player1;
                 }
-                catch (Exception e)
+                catch (WrapperException e)
                 {
                     //Used during debugging
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
+                    JArray array;
+                    if (current_player == player1)
+                    {
+                        array = new JArray { player2_name };
+                    }
+                    else
+                    {
+                        array = new JArray { player1_name };
+                    }
 
+                    Console.WriteLine(JsonConvert.SerializeObject(array));
+                    break;
+                }
+                catch (RefereeException e)
+                {
                     Console.WriteLine(referee.GetVictors());
                     break;
                 }
