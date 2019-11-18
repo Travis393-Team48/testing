@@ -95,5 +95,10 @@ namespace PlayerSpace
 
             throw new PlayerClientException("Invalid operation sent to PlayerClient");
         }
+
+        public bool IsAlive()
+        {
+            return clientConnectionContainer.IsAlive;
+        }
     }
 }

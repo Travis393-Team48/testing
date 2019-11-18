@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Newtonsoft.Json;
@@ -73,8 +74,12 @@ namespace UnitTests
 
             List<JToken> finalList = new List<JToken>();
 
+            string go = File.ReadAllText("go.config");
+            JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
+            string path = ipPort["default-player"].ToObject<string>();
+            //Create local player
+            Process.Start(Path.Combine(Environment.CurrentDirectory, path));
             PlayerAdapter aiPlayer = new PlayerAdapter(true, _port);
-            PlayerClient client = new PlayerClient("localhost", _port);
 
             _port++;
 

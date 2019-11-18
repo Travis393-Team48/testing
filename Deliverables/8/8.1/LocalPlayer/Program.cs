@@ -17,8 +17,8 @@ namespace LocalPlayer
             string go = File.ReadAllText("go.config");
             JObject config = JsonConvert.DeserializeObject<JObject>(go);
 
-            PlayerClient player = new PlayerClient(config["IP"].ToObject<string>(), config["port"].ToObject<int>());
-            while (true)
+            PlayerClientRaw player = new PlayerClientRaw(config["IP"].ToObject<string>(), config["port"].ToObject<int>());
+            while (player.IsConnected())
             {
 
             }

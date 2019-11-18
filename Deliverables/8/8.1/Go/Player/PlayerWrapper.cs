@@ -28,7 +28,7 @@ namespace PlayerSpace
         public PlayerWrapper(bool remote, int port = 0)
         {
             if (remote)
-                _player = new PlayerProxy(port);
+                _player = new PlayerProxyRaw(port);
             else
                 _player = new Player();
         }

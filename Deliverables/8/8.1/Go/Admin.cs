@@ -25,14 +25,13 @@ namespace Go
             string path = config["default-player"].ToObject<string>();
 
             RefereeWrapper referee = new RefereeWrapper(3);
-            PlayerWrapper player1 = new PlayerWrapper(true, port);
-            port++;
-            PlayerWrapper player2 = new PlayerWrapper(true, port);
 
             //Create local player
             Process.Start(Path.Combine(Environment.CurrentDirectory, path));
-            //PlayerClient p = new PlayerClient(ip, port - 1);
-            PlayerClient player = new PlayerClient(ip, port);
+            PlayerWrapper player1 = new PlayerWrapper(true, port);
+
+            PlayerWrapper player2 = new PlayerWrapper(false);
+
 
             string player1_name = player1.Register("player1", "illegal");
             string player2_name = player2.Register("player2", "dumb");
@@ -50,8 +49,9 @@ namespace Go
                 {
                     board_history = referee.GetBoardHistory();
                     next_move = current_player.MakeAMove(board_history);
-                    if (next_move == "This history makes no sense!")
-                        Console.WriteLine(JsonConvert.SerializeObject(board_history));
+                    //Used during debugging
+                    //if (next_move == "This history makes no sense!")
+                    //    Console.WriteLine(JsonConvert.SerializeObject(board_history));
                     if (next_move == "pass")
                         referee.Pass();
                     else
@@ -60,7 +60,9 @@ namespace Go
                 }
                 catch (Exception e)
                 {
+                    //Used during debugging
                     Console.WriteLine(e);
+
                     Console.WriteLine(referee.GetVictors());
                     break;
                 }

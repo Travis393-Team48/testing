@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayerSpace;
 using CustomExceptions;
+using System.Diagnostics;
 
 namespace PlayerSpace
 {
@@ -30,9 +31,16 @@ namespace PlayerSpace
             JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
             JObject depth = JsonConvert.DeserializeObject<JObject>(go_player);
 
+            
+
+            //Create raw remote player
+            string path = ipPort["default-player"].ToObject<string>();
+            Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+
             PlayerAdapter aiPlayer = new PlayerAdapter(true, ipPort["port"].ToObject<int>());
 
-            PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
+            //Create not-raw remote player
+            //PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
 
             //Parse console input while testing
             JsonTextReader reader = new JsonTextReader(new StringReader(console));
