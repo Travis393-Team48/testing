@@ -58,7 +58,7 @@ namespace Go
                         referee.Play(next_move);
                     current_player = current_player == player1 ? player2 : player1;
                 }
-                catch (WrapperException e)
+                catch (Exception e)
                 {
                     //Used during debugging
                     //Console.WriteLine(e);
@@ -73,11 +73,6 @@ namespace Go
                     }
 
                     Console.WriteLine(JsonConvert.SerializeObject(array));
-                    break;
-                }
-                catch (RefereeException e)
-                {
-                    Console.WriteLine(referee.GetVictors());
                     break;
                 }
             }
