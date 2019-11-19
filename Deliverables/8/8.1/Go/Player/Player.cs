@@ -65,14 +65,26 @@ namespace PlayerSpace
                 throw new PlayerException("This history makes no sense!");
             }
 
+            Random rng;
             switch (_AIType)
             {
-                case "illegal":
-                    Random rng = new Random();
+                case "smart":
+                    rng = new Random();
                     if (rng.NextDouble() > 0.2)
-                        goto case "dumb";
+                        goto case "less dumb";
                     else
-                        return "illegal move";
+                        return "pass";
+                case "illegal":
+                    rng = new Random();
+                    double n = rng.NextDouble();
+                    if (n > 0.8)
+                        return "pass";
+                    else if (n > 0.4)
+                        return "[50]";
+                    else
+                        return "1234";
+                case "disconnect":
+                    throw new Exception("Force Disconnect");
                 case "less dumb":
                     string oppositeStone;
                     if (_stone == "B")

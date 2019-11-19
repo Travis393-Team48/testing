@@ -17,7 +17,7 @@ namespace LocalPlayer
             string go = File.ReadAllText("go.config");
             JObject config = JsonConvert.DeserializeObject<JObject>(go);
 
-            PlayerClientRaw player = new PlayerClientRaw(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "less dumb", 1, "no name");
+            PlayerClientRaw player = new PlayerClientRaw(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "disconnect", 1, "no name");
             while (true)
             {
                 if (player.IsConnected())

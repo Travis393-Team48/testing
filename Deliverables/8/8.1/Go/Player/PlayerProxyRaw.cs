@@ -47,82 +47,53 @@ namespace PlayerSpace
 
         public string Register(string name)
         {
-            try
-            {
-                JArray array = new JArray();
-                array.Add("register");
+            JArray array = new JArray();
+            array.Add("register");
 
-                // Send a message to Client  using Send() method 
-                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
-                clientSocket.Send(message);
+            // Send a message to Client  using Send() method 
+            byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+            clientSocket.Send(message);
 
-                byte[] bytes = new Byte[1024];
-                int numByte = clientSocket.Receive(bytes);
-                string data = Encoding.ASCII.GetString(bytes, 0, numByte);
+            byte[] bytes = new Byte[1024];
+            int numByte = clientSocket.Receive(bytes);
+            string data = Encoding.ASCII.GetString(bytes, 0, numByte);
 
-                string remote_name = JsonConvert.DeserializeObject<string>(data);
-                _name = remote_name;
+            string remote_name = JsonConvert.DeserializeObject<string>(data);
+            _name = remote_name;
 
-                return remote_name;
-            }
-            catch (Exception e)
-            {
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
-                throw new Exception(e.Message, e.InnerException);
-            }
+            return remote_name;
         }
 
         public void ReceiveStones(string stone)
         {
-            try
-            {
-                JArray array = new JArray();
-                array.Add("receive-stones");
-                array.Add(stone);
+            JArray array = new JArray();
+            array.Add("receive-stones");
+            array.Add(stone);
 
-                // Send a message to Client  using Send() method 
-                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
-                clientSocket.Send(message);
+            // Send a message to Client  using Send() method 
+            byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+            clientSocket.Send(message);
 
-                _stone = stone;
+            _stone = stone;
 
-                return;
-            }
-
-            catch (Exception e)
-            {
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
-                throw new Exception(e.Message, e.InnerException);
-            }
+            return;
         }
 
         public string MakeAMove(string[][][] boards)
         {
-            try
-            {
-                JArray array = new JArray();
-                array.Add("make-a-move");
-                array.Add(JToken.Parse(JsonConvert.SerializeObject(boards)));
+            JArray array = new JArray();
+            array.Add("make-a-move");
+            array.Add(JToken.Parse(JsonConvert.SerializeObject(boards)));
 
-                // Send a message to Client  using Send() method 
-                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
-                clientSocket.Send(message);
+            // Send a message to Client  using Send() method 
+            byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+            clientSocket.Send(message);
 
-                byte[] bytes = new Byte[8192];
-                int numByte = clientSocket.Receive(bytes);
-                string data = Encoding.ASCII.GetString(bytes, 0, numByte);
+            byte[] bytes = new Byte[8192];
+            int numByte = clientSocket.Receive(bytes);
+            string data = Encoding.ASCII.GetString(bytes, 0, numByte);
 
-                return JsonConvert.DeserializeObject<string>(data);
-            }
-
-            catch (Exception e)
-            {
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
-                throw new Exception(e.Message, e.InnerException);
-            }
+            return JsonConvert.DeserializeObject<string>(data);
         }
 
         public string GetStone()
