@@ -26,16 +26,17 @@ namespace Go
             int port = config["port"].ToObject<int>();
             string path = config["default-player"].ToObject<string>();
 
-            //Create local player
-            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            //Create remote player (will need explicitly create a remote player to connect to this)
             PlayerWrapper player1 = new PlayerWrapper(port);
 
+            //Create local player
+            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
             PlayerWrapper player2 = new PlayerWrapper("dumb");
 
-            RefereeWrapper referee = new RefereeWrapper(player1, player2, 9);
+            RefereeWrapper referee = new RefereeWrapper(player1, player2, 3);
 
-            referee.Register();
-            referee.Register("local player");
+            referee.Register(); //Registeer player 1
+            referee.Register("local player"); //Register playeer 2
 
             PlayerWrapper current_player = player1;
             string[][][] board_history;

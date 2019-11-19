@@ -138,7 +138,7 @@ namespace PlayerSpace
             catch (Exception e)
             {
                 Console.WriteLine(e.Message, this);
-                //Console.ReadLine();
+                Console.ReadLine();
             }
 
             // Close Socket using the method Close() 

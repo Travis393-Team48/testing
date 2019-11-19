@@ -18,9 +18,18 @@ namespace LocalPlayer
             JObject config = JsonConvert.DeserializeObject<JObject>(go);
 
             PlayerClientRaw player = new PlayerClientRaw(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "less dumb", 1, "no name");
-            while (player.IsConnected())
+            while (true)
             {
-
+                if (player.IsConnected())
+                {
+                    while (true)
+                    {
+                        if (!player.IsConnected())
+                            break;
+                    }
+                    break;
+                }
+                    
             }
         }
     }
