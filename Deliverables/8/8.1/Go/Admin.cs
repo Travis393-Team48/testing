@@ -35,8 +35,34 @@ namespace Go
 
             RefereeWrapper referee = new RefereeWrapper(player1, player2, 3);
 
-            referee.Register(); //Registeer player 1
-            referee.Register("local player"); //Register playeer 2
+            try
+            {
+                referee.Register(); //Register player 1
+            }
+            catch (Exception e)
+            {
+                if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException)
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(new string[1] { "local player" }));
+                    return;
+                }
+                else
+                    throw new Exception(e.Message, e.InnerException);
+            }
+            try
+            {
+                referee.Register("local player"); //Register player 2
+            }
+            catch (Exception e)
+            {
+                if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException)
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(new string[1] { player1.GetName() }));
+                    return;
+                }
+                else
+                    throw new Exception(e.Message, e.InnerException);
+            }
 
             PlayerWrapper current_player = player1;
             string[][][] board_history;
@@ -56,34 +82,6 @@ namespace Go
                         referee.Play(next_move);
                     current_player = current_player == player1 ? player2 : player1;
                 }
-                catch (SocketException e)
-                {
-                    JArray array;
-                    if (current_player == player1)
-                    {
-                        array = new JArray { player2.GetName() };
-                    }
-                    else
-                    {
-                        array = new JArray { player1.GetName() };
-                    }
-                    Console.WriteLine(JsonConvert.SerializeObject(array));
-                    break;
-                }
-                catch (WrapperException e)
-                {
-                    JArray array;
-                    if (current_player == player1)
-                    {
-                        array = new JArray { player2.GetName() };
-                    }
-                    else
-                    {
-                        array = new JArray { player1.GetName() };
-                    }
-                    Console.WriteLine(JsonConvert.SerializeObject(array));
-                    break;
-                }
                 catch (RefereeException e)
                 {
                     List<PlayerWrapper> victors = referee.GetVictors();
@@ -93,6 +91,25 @@ namespace Go
 
                     Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
                     break;
+                }
+                catch (Exception e)
+                {
+                    if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException)
+                    {
+                        JArray array;
+                        if (current_player == player1)
+                        {
+                            array = new JArray { player2.GetName() };
+                        }
+                        else
+                        {
+                            array = new JArray { player1.GetName() };
+                        }
+                        Console.WriteLine(JsonConvert.SerializeObject(array));
+                        break;
+                    }
+                    else
+                        throw new Exception(e.Message, e.InnerException);
                 }
 
             }
