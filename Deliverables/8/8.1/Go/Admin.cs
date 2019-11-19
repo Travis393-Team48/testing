@@ -30,8 +30,7 @@ namespace Go
             PlayerWrapper player1 = new PlayerWrapper(port);
 
             //Create local player
-            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
-            PlayerWrapper player2 = new PlayerWrapper("dumb");
+            PlayerWrapper player2 = new PlayerWrapper("less dumb");
 
             RefereeWrapper referee = new RefereeWrapper(player1, player2, 3);
 
@@ -47,7 +46,7 @@ namespace Go
                     return;
                 }
                 else
-                    throw new Exception(e.Message, e.InnerException);
+                    throw;
             }
             try
             {
@@ -61,7 +60,7 @@ namespace Go
                     return;
                 }
                 else
-                    throw new Exception(e.Message, e.InnerException);
+                    throw;
             }
 
             PlayerWrapper current_player = player1;
@@ -73,16 +72,13 @@ namespace Go
                 {
                     board_history = referee.GetBoardHistory();
                     next_move = current_player.MakeAMove(board_history);
-                    //Used during debugging
-                    //if (next_move == "This history makes no sense!")
-                    //    Console.WriteLine(JsonConvert.SerializeObject(board_history));
                     if (next_move == "pass")
                         referee.Pass();
                     else
                         referee.Play(next_move);
                     current_player = current_player == player1 ? player2 : player1;
                 }
-                catch (RefereeException e)
+                catch (RefereeException)
                 {
                     List<PlayerWrapper> victors = referee.GetVictors();
                     List<string> names = new List<string>();
@@ -109,7 +105,7 @@ namespace Go
                         break;
                     }
                     else
-                        throw new Exception(e.Message, e.InnerException);
+                        throw;
                 }
 
             }

@@ -23,7 +23,6 @@ namespace PlayerSpace
     class PlayerIllegal : IPlayer
     {
         PlayerWrapper _player;
-        string _name;
         string _stone;
         string _configuration;
         bool _once;
@@ -42,6 +41,7 @@ namespace PlayerSpace
         public void ReceiveStones(string stone)
         {
             _player.ReceiveStones(stone);
+            _stone = stone;
         }
 
         public string MakeAMove(string[][][] boards)
