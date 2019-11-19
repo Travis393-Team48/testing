@@ -21,12 +21,17 @@ namespace PlayerSpace
 
         private PlayerWrapper _player;
 
-        public PlayerAdapter(bool remote, int port = 0)
+        public PlayerAdapter(string aiType, int n = 1)
         {
-            _player = new PlayerWrapper(remote, port);
+            _player = new PlayerWrapper(aiType, n);
         }
 
-        public JToken JsonCommand(JToken jtoken, string name = "no name", string AIType = "dumb", int n = 1)
+        public PlayerAdapter(int port)
+        {
+            _player = new PlayerWrapper(port);
+        }
+
+        public JToken JsonCommand(JToken jtoken, string name = "no name")
         {
             JsonValidation.ValidateJTokenPlayer(jtoken);
 
@@ -37,7 +42,7 @@ namespace PlayerSpace
                     case "register":
                         try
                         {
-                            name = _player.Register(name, AIType, n);
+                            name = _player.Register(name);
                             return JToken.Parse(JsonConvert.SerializeObject(name));
                         }
                         catch(JsonSerializationException e)

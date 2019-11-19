@@ -79,7 +79,7 @@ namespace UnitTests
             string path = ipPort["default-player"].ToObject<string>();
             //Create local player
             Process.Start(Path.Combine(Environment.CurrentDirectory, path));
-            PlayerAdapter aiPlayer = new PlayerAdapter(true, _port);
+            PlayerAdapter aiPlayer = new PlayerAdapter(_port);
 
             _port++;
 
@@ -99,7 +99,7 @@ namespace UnitTests
 
                 try
                 {
-                    toAdd = aiPlayer.JsonCommand(jtoken, "no name", "less dumb", 1);
+                    toAdd = aiPlayer.JsonCommand(jtoken, "no name");
                     if (toAdd.Type != JTokenType.Null)
                         finalList.Add(toAdd);
                 }

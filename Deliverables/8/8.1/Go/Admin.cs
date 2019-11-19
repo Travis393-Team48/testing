@@ -28,13 +28,13 @@ namespace Go
 
             //Create local player
             //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
-            PlayerWrapper player1 = new PlayerWrapper(true, port);
+            PlayerWrapper player1 = new PlayerWrapper(port);
 
-            PlayerWrapper player2 = new PlayerWrapper(false);
+            PlayerWrapper player2 = new PlayerWrapper("dumb");
 
 
-            string player1_name = player1.Register("player1", "illegal");
-            string player2_name = player2.Register("player2", "dumb");
+            string player1_name = player1.Register("player1");
+            string player2_name = player2.Register("player2");
             player1.ReceiveStones("B");
             player2.ReceiveStones("W");
             referee.Register(player1_name);
@@ -70,6 +70,17 @@ namespace Go
                     else
                     {
                         array = new JArray { player1_name };
+                    }
+                    if (referee.GetVictors().Count > 1)
+                    {
+                        if (current_player == player1)
+                        {
+                            array = new JArray { player1_name };
+                        }
+                        else
+                        {
+                            array = new JArray { player2_name };
+                        }
                     }
 
                     Console.WriteLine(JsonConvert.SerializeObject(array));

@@ -8,7 +8,7 @@ namespace PlayerSpace
 {
     interface IPlayer
     {
-        string Register(string name, string aiType, int n);
+        string Register(string name);
 
         void ReceiveStones(string stone);
 

@@ -25,15 +25,18 @@ namespace PlayerSpace
         string _AIType;
         int _n;
 
+        public Player(string aiType, int n)
+        {
+            _AIType = aiType;
+            _n = n;
+        }
+
         /* 
          * Initializes Player
          */
-        public string Register(string name, string aiType, int n)
+        public string Register(string name)
         {
             _name = name;
-            _AIType = aiType;
-            _n = n;
-
             return _name;
         }
 
@@ -69,7 +72,7 @@ namespace PlayerSpace
                     if (rng.NextDouble() > 0.2)
                         goto case "dumb";
                     else
-                        return "illegal move";
+                        return "illegl move";
                 case "less dumb":
                     string oppositeStone;
                     if (_stone == "B")

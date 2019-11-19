@@ -86,7 +86,7 @@ namespace UnitTests
 
         //Parse json from a file and run it through Player
         //Returns output of Player.JsonCommand
-        private string TestJson(string filePath, string AIType)
+        private string TestJson(string filePath, string aiType)
         {
             string json = ExtractJson(filePath);
 
@@ -94,11 +94,11 @@ namespace UnitTests
             List<JToken> jTokenList = ParsingHelper.ParseJson(json);
             List<JToken> finalList = new List<JToken>();
 
-            PlayerAdapter aiPlayer = new PlayerAdapter(false);
+            PlayerAdapter aiPlayer = new PlayerAdapter(aiType);
             JToken toAdd;
             foreach (JToken jtoken in jTokenList)
             {
-                toAdd = aiPlayer.JsonCommand(jtoken, "no name", AIType);
+                toAdd = aiPlayer.JsonCommand(jtoken, "no name");
                 if (toAdd.Type != JTokenType.Null)
                     finalList.Add(toAdd);
             }

@@ -36,23 +36,17 @@ namespace PlayerSpace
             
         }
 
-        public string Register(string name, string aiType, int n)
+        public string Register(string name)
         {
-            Task<string> response = RegisterAsync(name, aiType, n);
+            Task<string> response = RegisterAsync(name);
             while (!response.IsCompleted) { }
             return response.Result;
         }
 
-        private async Task<string> RegisterAsync(string name, string aiType, int n)
+        private async Task<string> RegisterAsync(string name)
         {
             JArray array = new JArray();
             array.Add("register");
-            if (aiType != "illegal")
-            {
-                array.Add(name);
-                array.Add(aiType);
-                array.Add(n);
-            }
 
             PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
             PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);

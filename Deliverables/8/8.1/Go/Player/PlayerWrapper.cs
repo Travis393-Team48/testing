@@ -25,22 +25,24 @@ namespace PlayerSpace
         private bool _register_flag;
         private bool _receive_stones_flag;
 
-        public PlayerWrapper(bool remote, int port = 0)
+        public PlayerWrapper(int port)
         {
-            if (remote)
-                _player = new PlayerProxyRaw(port);
-            else
-                _player = new Player();
+            _player = new PlayerProxyRaw(port);
         }
 
-        public string Register(string name, string aiType, int n = 1)
+        public PlayerWrapper(string aiType, int n = 1)
         {
             ValidationMethods.ValidateAIType(aiType);
             ValidationMethods.ValidateN(n);
+            _player = new Player(aiType, n);
+        }
+
+        public string Register(string name)
+        {
             if (_register_flag)
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register called twice");
             _register_flag = true;
-            return _player.Register(name, aiType, n);
+            return _player.Register(name);
         }
 
         public void ReceiveStones(string stone)

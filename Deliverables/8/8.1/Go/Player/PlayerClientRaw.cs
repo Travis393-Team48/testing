@@ -21,10 +21,12 @@ namespace PlayerSpace
     {
         private PlayerWrapper _player;
         private Socket sender;
+        private string _name;
 
-        public PlayerClientRaw(string ip, int port)
+        public PlayerClientRaw(string ip, int port, string aiType, int n = 1, string name = "my player client")
         {
-            _player = new PlayerWrapper(false);
+            _player = new PlayerWrapper(aiType, n);
+            _name = name;
 
             if (ip == "localhost")
                 ip = "127.0.0.1";
@@ -65,18 +67,7 @@ namespace PlayerSpace
                     switch (requestArray[0].ToObject<string>())
                     {
                         case "register":
-                            string register;
-                            if (requestArray.Count > 1)
-                            {
-                                register = _player.Register(
-                                    requestArray[1].ToObject<string>(),
-                                    requestArray[2].ToObject<string>(),
-                                    requestArray[3].ToObject<int>());
-                            }
-                            else
-                            {
-                                register = _player.Register("remote player", "illegal");
-                            }
+                            string register = _player.Register(_name);
                             // Creation of message that we will send to Server
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(register));
                             sender.Send(messageSent);
@@ -94,6 +85,12 @@ namespace PlayerSpace
                             }
                             catch (PlayerException e)
                             {
+                                //if (e.Message == "disconnect")
+                                //{
+                                //    sender.Shutdown(SocketShutdown.Both);
+                                //    sender.Close();
+                                //    return;
+                                //}
                                 move = e.Message;
                             }
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(move));

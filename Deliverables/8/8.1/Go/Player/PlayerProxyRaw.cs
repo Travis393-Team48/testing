@@ -43,16 +43,10 @@ namespace PlayerSpace
             clientSocket = listener.Accept();
         }
 
-        public string Register(string name, string aiType, int n)
+        public string Register(string name)
         {
             JArray array = new JArray();
             array.Add("register");
-            if (aiType != "illegal")
-            {
-                array.Add(name);
-                array.Add(aiType);
-                array.Add(n);
-            }
 
             // Send a message to Client  using Send() method 
             byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));

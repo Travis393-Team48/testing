@@ -37,7 +37,7 @@ namespace PlayerSpace
             string path = ipPort["default-player"].ToObject<string>();
             Process.Start(Path.Combine(Environment.CurrentDirectory, path));
 
-            PlayerAdapter aiPlayer = new PlayerAdapter(true, ipPort["port"].ToObject<int>());
+            PlayerAdapter aiPlayer = new PlayerAdapter(ipPort["port"].ToObject<int>());
 
             //Create not-raw remote player
             //PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
@@ -57,7 +57,7 @@ namespace PlayerSpace
 
                 try
                 {
-                    toAdd = aiPlayer.JsonCommand(jtoken, "no name", "less dumb", depth["depth"].ToObject<int>());
+                    toAdd = aiPlayer.JsonCommand(jtoken, "no name");
                     if (toAdd.Type != JTokenType.Null)
                         finalList.Add(toAdd);
                 }

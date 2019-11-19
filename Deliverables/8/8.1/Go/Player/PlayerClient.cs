@@ -20,16 +20,18 @@ namespace PlayerSpace
     public class PlayerClient
     {
         private PlayerWrapper _player;
+        private string _name;
 
         ClientConnectionContainer clientConnectionContainer;
 
-        public PlayerClient(string ip, int port)
+        public PlayerClient(string ip, int port, string aiType, int n = 1, string name = "my player client")
         {
             clientConnectionContainer = ConnectionFactory.CreateClientConnectionContainer(ip, port);
             clientConnectionContainer.ConnectionEstablished += ConnectionEstablished;
             clientConnectionContainer.ConnectionLost += ConnectionLost;
 
-            _player = new PlayerWrapper(false);
+            _player = new PlayerWrapper(aiType, n);
+            _name = name;
 
             while (!clientConnectionContainer.IsAlive) { }
         }
@@ -58,10 +60,7 @@ namespace PlayerSpace
             switch (requestArray[0].ToObject<string>())
             {
                 case "register":
-                    string register = _player.Register(
-                        requestArray[1].ToObject<string>(),
-                        requestArray[2].ToObject<string>(),
-                        requestArray[3].ToObject<int>());
+                    string register = _player.Register(_name);
                     response = new PlayerResponsePacket(JsonConvert.SerializeObject(register), packet);
                     connection.Send(response);
                     return;
