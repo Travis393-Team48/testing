@@ -54,6 +54,7 @@ namespace PlayerSpace
 
             PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
             PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
+            _name = JsonConvert.DeserializeObject<string>(response.Response);
             return JsonConvert.DeserializeObject<string>(response.Response);
         }
 
@@ -61,6 +62,7 @@ namespace PlayerSpace
         {
             Task response = ReceiveStonesAsync(stone);
             while (!response.IsCompleted) { }
+            _stone = stone;
             return;
         }
 

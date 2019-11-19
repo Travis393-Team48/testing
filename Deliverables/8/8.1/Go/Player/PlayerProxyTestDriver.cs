@@ -31,16 +31,17 @@ namespace PlayerSpace
             JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
             JObject depth = JsonConvert.DeserializeObject<JObject>(go_player);
 
-            
+
 
             //Create raw remote player
-            string path = ipPort["default-player"].ToObject<string>();
-            Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            //string path = ipPort["default-player"].ToObject<string>();
+            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+
+            //Create remote player
+            PlayerClientRaw client = new PlayerClientRaw(ipPort["IP"].ToObject<string>(),
+                ipPort["port"].ToObject<int>(), "less dumb", 1, "no name");
 
             PlayerAdapter aiPlayer = new PlayerAdapter(ipPort["port"].ToObject<int>());
-
-            //Create not-raw remote player
-            //PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(), ipPort["port"].ToObject<int>());
 
             //Parse console input while testing
             JsonTextReader reader = new JsonTextReader(new StringReader(console));

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CustomExceptions;
@@ -11,8 +13,8 @@ namespace PlayerSpace
     /* Client-side Player
      * Networks between PlayerProxy and a Player
      * Holds a client-side listener
-     * Establishes a connection to server and PacketHandler when created
-     * 
+     * ASYNCHRONOUSLY Establishes a connection to server and PacketHandler when created
+     *  will start receiving after connection is established
      * When a PlayerRequestPacket is received, deciphers the packet
      *  and calls a function in PlayerWrapper depending the packet
      * May also send a response message to the server
@@ -42,9 +44,26 @@ namespace PlayerSpace
 
         private void ConnectToServer(IPEndPoint localEndPoint)
         {
-            // Connect Socket to the remote endpoint using method Connect() 
-            sender.Connect(localEndPoint);
-            StartReceiving();
+            // Connect Socket to the remote endpoint using method Connect()
+            sender.BeginConnect(localEndPoint, ConnectCallback, sender);
+        }
+
+        private void ConnectCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.  
+                Socket client = (Socket)ar.AsyncState;
+
+                // Complete the connection.  
+                client.EndConnect(ar);
+
+                StartReceiving();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         private void StartReceiving()
@@ -109,6 +128,8 @@ namespace PlayerSpace
                             sender.Send(messageSent);
                             break;
                         default:
+                            sender.Shutdown(SocketShutdown.Both);
+                            sender.Close();
                             throw new PlayerClientException("Invalid operation sent to PlayerClient");
                     }
                 }
@@ -117,7 +138,7 @@ namespace PlayerSpace
             catch (Exception e)
             {
                 Console.WriteLine(e.Message, this);
-                Console.ReadLine();
+                //Console.ReadLine();
             }
 
             // Close Socket using the method Close() 

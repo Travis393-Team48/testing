@@ -74,11 +74,14 @@ namespace UnitTests
 
             List<JToken> finalList = new List<JToken>();
 
-            string go = File.ReadAllText("go.config");
-            JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
-            string path = ipPort["default-player"].ToObject<string>();
+            //string go = File.ReadAllText("go.config");
+            //JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
+            //string path = ipPort["default-player"].ToObject<string>();
             //Create local player
-            Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+
+            PlayerClientRaw client = new PlayerClientRaw("localhost", _port, "less dumb", 1, "no name");
+
             PlayerAdapter aiPlayer = new PlayerAdapter(_port);
 
             _port++;
