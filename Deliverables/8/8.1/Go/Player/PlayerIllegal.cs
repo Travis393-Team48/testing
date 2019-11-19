@@ -10,50 +10,40 @@ using BoardSpace;
 namespace PlayerSpace
 {
     /*
-     * Simulates an aiPlayer
-     * What strategy the aiPlayer uses depends on aiType field
-     * options are "dumb" and "less dumb"
-     * 
-     * Register must be called before use of other functions
-     * ReceiveStones must be called before MakeAMove
-     * GetStones must be called after ReceiveStones
+     * Simulates an aiPlayer that return invalid points during make a move depending on configuration
+     * After doing stuff depnding on the configuration, wil default to a "smart" player
+     * Configurations:
+     * "always return 1-1"
+     * "return 19-19 once"
+     * "return 99-99 once"
+     * "return characters"
+     * "return numbers"
+     * "return array"
      */
     class PlayerIllegal : IPlayer
     {
+        PlayerWrapper _player;
         string _name;
         string _stone;
-        string _AIType;
-        int _n;
+        string _configuration;
+        bool _once;
 
-        public PlayerIllegal(string aiType, int n)
+        public PlayerIllegal(string configuration)
         {
-            _AIType = aiType;
-            _n = n;
+            _configuration = configuration;
+            _player = new PlayerWrapper("smart", 1);
         }
 
-        /* 
-         * Initializes Player
-         */
         public string Register(string name)
         {
-            _name = name;
-            return _name;
+            return _player.Register(name);
         }
 
-        /*
-         * Sets stone of player
-         */
         public void ReceiveStones(string stone)
         {
-            _stone = stone;
+            _player.ReceiveStones(stone);
         }
 
-        /*
-         * Returns a point if there is a valid move given the board history
-         *      point is determined by _AIType
-         * Returns "pass" if there are no valid moves
-         * Throws an exception if board history is illegal
-         */
         public string MakeAMove(string[][][] boards)
         {
             try
@@ -65,131 +55,60 @@ namespace PlayerSpace
                 throw new PlayerException("This history makes no sense!");
             }
 
-            Random rng;
-            switch (_AIType)
+            switch (_configuration)
             {
-                case "smart":
-                    rng = new Random();
-                    if (rng.NextDouble() > 0.2)
-                        goto case "less dumb";
-                    else
-                        return "pass";
-                case "illegal":
-                    rng = new Random();
-                    double n = rng.NextDouble();
-                    if (n > 0.8)
-                        return "pass";
-                    else if (n > 0.4)
-                        return "[50]";
-                    else
+                case "always return 1-1":
+                    return "1-1";
+                case "return 19-19 once":
+                    if (_once == false)
+                    {
+                        _once = true;
+                        return "19-19";
+                    }
+                    goto default;
+                case "return 99-99 once":
+                    if (_once == false)
+                    {
+                        _once = true;
+                        return "99-99";
+                    }
+                    goto default;
+                case "return characters once":
+                    if (_once == false)
+                    {
+                        _once = true;
+                        return "illegal move";
+                    }
+                    goto default;
+                case "return numbers once":
+                    if (_once == false)
+                    {
+                        _once = true;
                         return "1234";
-                case "disconnect":
-                    throw new Exception("Force Disconnect");
-                case "less dumb":
-                    string oppositeStone;
-                    if (_stone == "B")
-                        oppositeStone = "W";
-                    else
-                        oppositeStone = "B";
-
-                    BoardWrapper boardObject = new BoardWrapper(boards[0], boards[0].Length);
-                    List<string> pointsList = boardObject.GetPoints(oppositeStone);
-                    List<string> iterate;
-                    List<List<string>> possibleMoves = new List<List<string>>();
-
-                    //Find all oppositeStones with only one adjacent liberty
-                    //Add {point, adjacentLiberty} to a possibleMoves
-                    foreach (string point in pointsList)
-                    {
-                        iterate = boardObject.GetAdjacentLiberties(point);
-                        iterate.Insert(0, point);
-                        if (iterate.Count == 2)
-                            possibleMoves.Add(iterate);
                     }
-
-                    List<List<string>> temp = new List<List<string>>();
-                    //Check the validity of each possibleMove
-                    //Also check that making that possibleMove will result in a capture
-                    //Failing these conditions, remove move from possibleMoves
-                    foreach (List<string> move in possibleMoves)
+                    goto default;
+                case "return array once":
+                    if (_once == false)
                     {
-                        try
-                        {
-                            RuleChecker.CheckMove(_stone, move[1], boards);
-                        }
-                        catch (Exception e)
-                        {
-                            if (!(e is RuleCheckerException) && !(e is BoardException))
-                                throw;
-                            continue;
-                        }
-
-                        boardObject = new BoardWrapper(boards[0], boards[0].Length);
-                        boardObject.PlaceStone(_stone, move[1]);
-                        if (!boardObject.Reachable(move[0], " "))
-                            temp.Add(move);
+                        _once = true;
+                        return "[\"illlegal move\"]";
                     }
-                    possibleMoves = temp;
-
-                    //sort in lowest column lowest row order (numeric)
-                    possibleMoves.Sort(ComparePossibleMoves);
-
-                    //for n == 1, return the first possible Move (if it exists)
-                    if (_n == 1)
-                        if (possibleMoves.Count > 0)
-                            return possibleMoves[0][1];
-                    //Otherwise, n > 1, and if there is only one possibleMove, return it
-                    if (possibleMoves.Count == 1)
-                        return possibleMoves[0][1];
-                    //Otherwise, play dumb
-                    goto case "dumb";
-                case "dumb":
-                    for (int i = 0; i < boards[0].Length; i++)
-                        for (int j = 0; j < boards[0].Length; j++)
-                        {
-                            try
-                            {
-                                string point = (i + 1).ToString() + "-" + (j + 1).ToString();
-                                RuleChecker.CheckMove(_stone, point, boards);
-                                return point;
-                            }
-                            catch (Exception e)
-                            {
-                                if (!(e is RuleCheckerException) && !(e is BoardException))
-                                    throw;
-                            }
-                        }
-                    break;
+                    goto default;
+                default:
+                    return _player.MakeAMove(boards);
             }
 
-            return "pass";
+            throw new Exception("Illegal player somehow failed to return a move");
         }
 
         public string GetStone()
         {
-            return _stone;
+            return _player.GetStone();
         }
 
         public string GetName()
         {
-            return _name;
-        }
-
-        //Helper function for sorting possible moves()
-        private static int ComparePossibleMoves(List<string> x, List<string> y)
-        {
-            int[] px = ParsingHelper.ParsePoint(x[1]);
-            int[] py = ParsingHelper.ParsePoint(y[1]);
-
-            if (px[0] == py[0])
-            {
-                if (px[1] > py[1])
-                    return 1;
-                return -1;
-            }
-            if (px[0] > py[0])
-                return 1;
-            return -1;
+            return _player.GetName();
         }
     }
 }

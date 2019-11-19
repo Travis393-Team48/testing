@@ -10,25 +10,34 @@ using System.Text;
 
 namespace PlayerSpace
 {
-    /* Client-side Player
-     * Networks between PlayerProxy and a Player
-     * Holds a client-side listener
-     * ASYNCHRONOUSLY Establishes a connection to server and PacketHandler when created
-     *  will start receiving after connection is established
-     * When a PlayerRequestPacket is received, deciphers the packet
-     *  and calls a function in PlayerWrapper depending the packet
-     * May also send a response message to the server
+    /* Illegal Client-side Player that disconnects/send incorrect json depending on configuration
+     * Configurations:
+     * "disconnect on connect A" - disconnect client right after connecting to server, before calling StartReceiving()
+     * "disconnect on connect B" - disconnect client right after connecting to server, after calling StartReceiving()
+     * "send json int on register"
+     * "send json array on register"
+     * "send json int on make a move"
+     * "send json array on make a move"
+     * "send json object on make a move"
+     * "disconnect on register"
+     * "disconnect on receive stones"
+     * "disconnect on make a move"
      */
     public class PlayerClientIllegal
     {
         private PlayerWrapper _player;
         private Socket sender;
         private string _name;
+        string _configuration;
 
-        public PlayerClientIllegal(string ip, int port, string aiType, int n = 1, string name = "my player client")
+        public PlayerClientIllegal(string ip, int port, string aiType, string configuration)
         {
-            _player = new PlayerWrapper(aiType, n);
-            _name = name;
+            _configuration = configuration;
+            if (aiType == "illegal")
+                _player = new PlayerWrapper(aiType, configuration);
+            else
+                _player = new PlayerWrapper("smart", 1);
+            _name = "illegal player - " + configuration;
 
             if (ip == "localhost")
                 ip = "127.0.0.1";
@@ -50,20 +59,17 @@ namespace PlayerSpace
 
         private void ConnectCallback(IAsyncResult ar)
         {
-            try
-            {
-                // Retrieve the socket from the state object.  
-                Socket client = (Socket)ar.AsyncState;
+            // Retrieve the socket from the state object.  
+            Socket client = (Socket)ar.AsyncState;
+            // Complete the connection.  
+            client.EndConnect(ar);
 
-                // Complete the connection.  
-                client.EndConnect(ar);
+            if (_configuration == "disconnect on connect A")
+                ForceDisconnect();
 
-                StartReceiving();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            StartReceiving();
+            if (_configuration == "disconnect on connect B")
+                ForceDisconnect();
         }
 
         private void StartReceiving()
@@ -72,12 +78,8 @@ namespace PlayerSpace
             {
                 while (sender.Connected)
                 {
-                    // Data buffer 
                     byte[] messageReceived = new byte[8192];
                     byte[] messageSent;
-
-                    // We receive the message using the method Receive(). This  
-                    // method returns number of bytes received, that we'll use to convert them to string 
                     int byteRecv = sender.Receive(messageReceived);
                     string message = Encoding.ASCII.GetString(messageReceived, 0, byteRecv);
 
@@ -86,30 +88,62 @@ namespace PlayerSpace
                     switch (requestArray[0].ToObject<string>())
                     {
                         case "register":
+                            if (_configuration == "disconnect on register")
+                                ForceDisconnect();
+                            if (_configuration == "send json int on register")
+                            {
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(1234));
+                                sender.Send(messageSent);
+                                break;
+                            }
+                            if (_configuration == "send json array on register")
+                            {
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(new string[1] {"json array"}));
+                                sender.Send(messageSent);
+                                break;
+                            }
+                            //normal functionality:
                             string register = _player.Register(_name);
-                            // Creation of message that we will send to Server
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(register));
                             sender.Send(messageSent);
                             break;
 
                         case "receive-stones":
+                            if (_configuration == "disconnect on receive stones")
+                                ForceDisconnect();
                             _player.ReceiveStones(requestArray[1].ToObject<string>());
                             break;
 
                         case "make-a-move":
+                            if (_configuration == "disconnect on make a move")
+                                ForceDisconnect();
+                            if (_configuration == "send json int on make a move")
+                            {
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(1234));
+                                sender.Send(messageSent);
+                                break;
+                            }
+                            if (_configuration == "send json array on make a move")
+                            {
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(new string[1] { "json array" }));
+                                sender.Send(messageSent);
+                                break;
+                            }
+                            if (_configuration == "send json object on make a move")
+                            {
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(new JObject("json object")));
+                                sender.Send(messageSent);
+                                break;
+                            }
+
+                            //Normal funcitonality:
                             string move;
                             try
                             {
                                 move = _player.MakeAMove(requestArray[1].ToObject<string[][][]>());
                             }
-                            catch (PlayerException e)
+                            catch (PlayerException e) //Board history is illegal
                             {
-                                //if (e.Message == "disconnect")
-                                //{
-                                //    sender.Shutdown(SocketShutdown.Both);
-                                //    sender.Close();
-                                //    return;
-                                //}
                                 move = e.Message;
                             }
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(move));
@@ -149,6 +183,13 @@ namespace PlayerSpace
         public bool IsConnected()
         {
             return sender.Connected;
+        }
+
+        private void ForceDisconnect()
+        {
+            sender.Shutdown(SocketShutdown.Both);
+            sender.Close();
+            throw new Exception("Force Disconnection - " + _configuration);
         }
     }
 }

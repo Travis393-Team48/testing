@@ -77,8 +77,8 @@
   <ItemGroup>
     <Compile Include="Admin.cs" />
     <Compile Include="CustomComparators.cs" />
-    <Compile Include="Player\PlayerIllegal.cs" />
     <Compile Include="Player\PlayerClientIllegal.cs" />
+    <Compile Include="Player\PlayerIllegal.cs" />
     <Compile Include="Player\PlayerClientRaw.cs" />
     <Compile Include="Player\PlayerProxy.cs" />
     <Compile Include="Player\PlayerResponsePacket.cs" />

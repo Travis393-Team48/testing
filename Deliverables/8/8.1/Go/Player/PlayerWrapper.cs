@@ -37,6 +37,17 @@ namespace PlayerSpace
             _player = new Player(aiType, n);
         }
 
+        //Use specifically for illegal players
+        public PlayerWrapper(string aiType, string configuration)
+        {
+            if (aiType == "illegal")
+            {
+                _player = new PlayerIllegal(configuration);
+            }
+            else
+                throw new WrapperException("Wrapper Exception in PlayerWrapper: Invalid aiType when creating an illegal client");
+        }
+
         public string Register(string name)
         {
             if (_register_flag)

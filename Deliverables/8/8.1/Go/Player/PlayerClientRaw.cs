@@ -50,20 +50,12 @@ namespace PlayerSpace
 
         private void ConnectCallback(IAsyncResult ar)
         {
-            try
-            {
-                // Retrieve the socket from the state object.  
-                Socket client = (Socket)ar.AsyncState;
+            // Retrieve the socket from the state object.  
+            Socket client = (Socket)ar.AsyncState;
+            // Complete the connection.  
+            client.EndConnect(ar);
 
-                // Complete the connection.  
-                client.EndConnect(ar);
-
-                StartReceiving();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            StartReceiving();
         }
 
         private void StartReceiving()
