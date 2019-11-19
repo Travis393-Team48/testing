@@ -72,7 +72,7 @@ namespace PlayerSpace
                     if (rng.NextDouble() > 0.2)
                         goto case "dumb";
                     else
-                        return "illegl move";
+                        return "pass";
                 case "less dumb":
                     string oppositeStone;
                     if (_stone == "B")

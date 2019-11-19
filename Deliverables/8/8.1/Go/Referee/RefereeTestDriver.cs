@@ -7,6 +7,7 @@ using RefereeSpace;
 using CustomExceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PlayerSpace;
 
 class RefereeTestDriver
 {
@@ -29,7 +30,10 @@ class RefereeTestDriver
 
         List<JToken> finalList = new List<JToken>();
 
-        RefereeAdapter referee = new RefereeAdapter();
+        PlayerWrapper player1 = new PlayerWrapper("human");
+        PlayerWrapper player2 = new PlayerWrapper("human");
+
+        RefereeAdapter referee = new RefereeAdapter(player1, player2);
         foreach (JToken jtoken in jTokenList)
         {
             try

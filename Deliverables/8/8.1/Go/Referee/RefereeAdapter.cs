@@ -23,9 +23,9 @@ namespace RefereeSpace
         bool _isSet_player1;
         bool _isSet_player2;
 
-        public RefereeAdapter(int size = 19)
+        public RefereeAdapter(PlayerWrapper player1, PlayerWrapper player2, int size = 19)
         {
-            _referee = new RefereeWrapper(size);
+            _referee = new RefereeWrapper(player1, player2, size);
         }
 
         public void JsonCommand(JToken jtoken, ref List<JToken> jTokenList)

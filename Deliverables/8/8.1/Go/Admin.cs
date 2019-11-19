@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayerSpace;
 using RefereeSpace;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Go
 {
@@ -24,21 +26,16 @@ namespace Go
             int port = config["port"].ToObject<int>();
             string path = config["default-player"].ToObject<string>();
 
-            RefereeWrapper referee = new RefereeWrapper(3);
-
             //Create local player
             //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
             PlayerWrapper player1 = new PlayerWrapper(port);
 
             PlayerWrapper player2 = new PlayerWrapper("dumb");
 
+            RefereeWrapper referee = new RefereeWrapper(player1, player2, 9);
 
-            string player1_name = player1.Register("player1");
-            string player2_name = player2.Register("player2");
-            player1.ReceiveStones("B");
-            player2.ReceiveStones("W");
-            referee.Register(player1_name);
-            referee.Register(player2_name);
+            referee.Register();
+            referee.Register("local player");
 
             PlayerWrapper current_player = player1;
             string[][][] board_history;
@@ -58,34 +55,45 @@ namespace Go
                         referee.Play(next_move);
                     current_player = current_player == player1 ? player2 : player1;
                 }
-                catch (Exception e)
+                catch (SocketException e)
                 {
-                    //Used during debugging
-                    //Console.WriteLine(e);
                     JArray array;
                     if (current_player == player1)
                     {
-                        array = new JArray { player2_name };
+                        array = new JArray { player2.GetName() };
                     }
                     else
                     {
-                        array = new JArray { player1_name };
+                        array = new JArray { player1.GetName() };
                     }
-                    if (referee.GetVictors().Count > 1)
-                    {
-                        if (current_player == player1)
-                        {
-                            array = new JArray { player1_name };
-                        }
-                        else
-                        {
-                            array = new JArray { player2_name };
-                        }
-                    }
-
                     Console.WriteLine(JsonConvert.SerializeObject(array));
                     break;
                 }
+                catch (WrapperException e)
+                {
+                    JArray array;
+                    if (current_player == player1)
+                    {
+                        array = new JArray { player2.GetName() };
+                    }
+                    else
+                    {
+                        array = new JArray { player1.GetName() };
+                    }
+                    Console.WriteLine(JsonConvert.SerializeObject(array));
+                    break;
+                }
+                catch (RefereeException e)
+                {
+                    List<PlayerWrapper> victors = referee.GetVictors();
+                    List<string> names = new List<string>();
+                    foreach (PlayerWrapper victor in victors)
+                        names.Add(victor.GetName());
+
+                    Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
+                    break;
+                }
+
             }
 
             Console.ReadLine();

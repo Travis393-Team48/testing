@@ -27,6 +27,8 @@ namespace PlayerSpace
     class PlayerProxyRaw : IPlayer
     {
         Socket clientSocket;
+        private string _name;
+        private string _stone;
 
         public PlayerProxyRaw(int port)
         {
@@ -56,7 +58,10 @@ namespace PlayerSpace
             int numByte = clientSocket.Receive(bytes);
             string data = Encoding.ASCII.GetString(bytes, 0, numByte);
 
-            return JsonConvert.DeserializeObject<string>(data);
+            string remote_name = JsonConvert.DeserializeObject<string>(data);
+            _name = remote_name;
+
+            return remote_name;
         }
 
         public void ReceiveStones(string stone)
@@ -68,6 +73,8 @@ namespace PlayerSpace
             // Send a message to Client  using Send() method 
             byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
             clientSocket.Send(message);
+
+            _stone = stone;
 
             return;
         }
@@ -91,34 +98,12 @@ namespace PlayerSpace
 
         public string GetStone()
         {
-            JArray array = new JArray();
-            array.Add("GetStone");
-
-            // Send a message to Client  using Send() method 
-            byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
-            clientSocket.Send(message);
-
-            byte[] bytes = new Byte[1024];
-            int numByte = clientSocket.Receive(bytes);
-            string data = Encoding.ASCII.GetString(bytes, 0, numByte);
-
-            return JsonConvert.DeserializeObject<string>(data);
+            return _stone;
         }
 
         public string GetName()
         {
-            JArray array = new JArray();
-            array.Add("GetName");
-
-            // Send a message to Client  using Send() method 
-            byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
-            clientSocket.Send(message);
-
-            byte[] bytes = new Byte[1024];
-            int numByte = clientSocket.Receive(bytes);
-            string data = Encoding.ASCII.GetString(bytes, 0, numByte);
-
-            return JsonConvert.DeserializeObject<string>(data);
+            return _name;
         }
 
     }

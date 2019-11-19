@@ -12,12 +12,14 @@ using Newtonsoft.Json.Linq;
 namespace RefereeSpace
 {
     /* Referee class
+     * Expects two players, and will call Register and Receive Stones for them
      * Hold two players and referees a game between them
      * Throws a RefereeException if a player makes an illegal move
      * Throws an InvalidOperationException if Register is somehow called more than twice (shouldn't ever happen as wrapper checks for this)
      */
     class Referee
     {
+        int _players_set;
         PlayerWrapper _player1;
         PlayerWrapper _player2;
         PlayerWrapper _current_player;
@@ -25,28 +27,30 @@ namespace RefereeSpace
         List<BoardWrapper> _board_history;
         List<PlayerWrapper> _victors;
 
-        public Referee(int size = 19)
+        public Referee(PlayerWrapper player1, PlayerWrapper player2, int size)
         {
             _board_history = new List<BoardWrapper>();
             _victors = new List<PlayerWrapper>();
             _board_history.Add(new BoardWrapper(null, size));
+            _player1 = player1;
+            _player2 = player2;
         }
 
-        public string Register(string name, string aiType = "human")
+        public string Register(string name)
         {
-            if (_player1 == null)
+            if (_players_set == 0)
             {
-                _player1 = new PlayerWrapper(aiType);
                 _player1.Register(name);
                 _player1.ReceiveStones("B");
                 _current_player = _player1;
+                _players_set++;
                 return "B";
             }
-            else if (_player2 == null)
+            else if (_players_set == 1)
             {
-                _player2 = new PlayerWrapper(aiType);
                 _player2.Register(name);
                 _player2.ReceiveStones("W");
+                _players_set++;
                 return "W";
             }
             throw new InvalidOperationException("Invalid call to Register in Referee: Cannot register more than two players");

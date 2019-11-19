@@ -19,21 +19,20 @@ namespace RefereeSpace
         Referee _referee;
         int _players_set;
 
-        public RefereeWrapper(int size = 19)
+        public RefereeWrapper(PlayerWrapper player1, PlayerWrapper player2, int size = 19)
         {
             if (size < 1 || size > 19)
                 throw new WrapperException("Invalid size passed to RefereeWrapper");
-            _referee = new Referee(size);
+            _referee = new Referee(player1, player2, size);
             _players_set = 0;
         }
 
-        public string Register(string name, string aiType = "human")
+        public string Register(string name = "no name")
         {
-            ValidationMethods.ValidateAIType(aiType);
             _players_set++;
             if (_players_set > 2)
                 throw new WrapperException("Protocols of interaction violation in RefereeWrapper: Cannot register more than two players");
-            return _referee.Register(name, aiType);
+            return _referee.Register(name);
         }
 
         /* Passes the game 

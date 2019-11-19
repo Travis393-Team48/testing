@@ -11,6 +11,8 @@ namespace PlayerSpace
      * Networks between some server and a PlayerClient
      * Holds a server-side listener
      * Behavior is the same as a Player (although throws different type of exception)
+     * Also holds the name and stone of player which is set afteer Register and ReceiveStones
+     *  kept here as the remote player may not have methods available to retrieve this  data
      * 
      * Sends requests to the PlayerClient using Packets
      * Packets contains a JArray in a generic Json data format (string)
@@ -25,6 +27,8 @@ namespace PlayerSpace
     class PlayerProxy : IPlayer
     {
         ServerConnectionContainer _serverConnectionContainer;
+        private string _name;
+        private string _stone;
 
         public PlayerProxy(int port)
         {
@@ -90,36 +94,12 @@ namespace PlayerSpace
 
         public string GetStone()
         {
-            Task<string> response = GetStoneAsync();
-            while (!response.IsCompleted) { }
-            return response.Result;
-        }
-
-        private async Task<string> GetStoneAsync()
-        {
-            JArray array = new JArray();
-            array.Add("GetStone");
-
-            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
-            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
-            return JsonConvert.DeserializeObject<string>(response.Response);
+            return _stone;
         }
 
         public string GetName()
         {
-            Task<string> response = GetNameAsync();
-            while (!response.IsCompleted) { }
-            return response.Result;
-        }
-
-        private async Task<string> GetNameAsync()
-        {
-            JArray array = new JArray();
-            array.Add("GetName");
-
-            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
-            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
-            return JsonConvert.DeserializeObject<string>(response.Response);
+            return _name;
         }
 
 
