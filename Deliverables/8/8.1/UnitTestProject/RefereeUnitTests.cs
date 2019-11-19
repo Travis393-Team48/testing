@@ -81,7 +81,7 @@ namespace UnitTests
             {
                 try
                 {
-                    referee.JsonCommand(jtoken, ref finalList);
+                    referee.JsonCommand(jtoken, finalList);
                 }
                 catch (RefereeException)
                 {

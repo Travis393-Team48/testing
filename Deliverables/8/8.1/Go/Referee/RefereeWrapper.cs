@@ -72,5 +72,12 @@ namespace RefereeSpace
         {
             return _referee.GetVictors();
         }
+
+        public List<string> RefereeGame()
+        {
+            if (_players_set != 2)
+                throw new WrapperException("Protocols of interaction violation in RefereeWrapper: Register not called twice before RefereeGame");
+            return _referee.RefereeGame();
+        }
     }
 }

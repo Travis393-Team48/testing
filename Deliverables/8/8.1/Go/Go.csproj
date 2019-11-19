@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>Go.Admin</StartupObject>
+    <StartupObject>Go.AdminTestDriver</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ConsoleTables, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.cs" />
+    <Compile Include="AdminTestDriver.cs" />
     <Compile Include="CustomComparators.cs" />
     <Compile Include="Player\PlayerClientIllegal.cs" />
     <Compile Include="Player\PlayerIllegal.cs" />

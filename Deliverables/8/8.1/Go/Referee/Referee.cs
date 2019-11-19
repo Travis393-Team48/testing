@@ -8,6 +8,8 @@ using BoardSpace;
 using CustomExceptions;
 using RuleCheckerSpace;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Net.Sockets;
 
 namespace RefereeSpace
 {
@@ -135,6 +137,53 @@ namespace RefereeSpace
         public List<PlayerWrapper> GetVictors()
         {
             return _victors;
+        }
+
+        /*
+         * Simulates a game between two players
+         * Returns a list off victors
+         * Players can be local or remote
+         * If a remote player sends illegal data or disconnects, the other player is declared victor
+         */
+        public List<string> RefereeGame()
+        {
+            while (true)
+            {
+                try
+                {
+                    string next_move = _current_player.MakeAMove(GetBoardHistory());
+                    if (next_move == "pass")
+                       Pass();
+                    else
+                       Play(next_move);
+                    //Don't Update current player!!! already updated in Pass() and Play()
+                    //_current_player = _current_player == _player1 ? _player2 : _player1;
+                }
+                catch (RefereeException)
+                {
+                    List<PlayerWrapper> victors = GetVictors();
+                    List<string> names = new List<string>();
+                    foreach (PlayerWrapper victor in victors)
+                        names.Add(victor.GetName());
+
+                    return names;
+                }
+                catch (Exception e)
+                {
+                    if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException)
+                    {
+                        List<string> names = new List<string>();
+                        if (_current_player == _player1)
+                            names.Add(_player2.GetName());
+                        else
+                            names.Add(_player1.GetName());
+                        return names;
+                    }
+                    else
+                        throw;
+                }
+
+            }
         }
     }
 }

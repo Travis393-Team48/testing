@@ -28,7 +28,7 @@ namespace RefereeSpace
             _referee = new RefereeWrapper(player1, player2, size);
         }
 
-        public void JsonCommand(JToken jtoken, ref List<JToken> jTokenList)
+        public void JsonCommand(JToken jtoken, List<JToken> jTokenList)
         {
             //Register Players
             if (!_isSet_player1)
