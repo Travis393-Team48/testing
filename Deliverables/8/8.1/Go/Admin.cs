@@ -35,8 +35,8 @@ namespace Go
 
             RefereeWrapper referee = new RefereeWrapper(player1, player2, 3);
 
-            referee.Register(); //Registeer player 1
-            referee.Register("local player"); //Register playeer 2
+            referee.Register(); //Register player 1
+            referee.Register("local player"); //Register player 2
 
             PlayerWrapper current_player = player1;
             string[][][] board_history;
@@ -67,7 +67,7 @@ namespace Go
                     {
                         array = new JArray { player1.GetName() };
                     }
-                    Console.WriteLine(JsonConvert.SerializeObject(array));
+                    Console.WriteLine("socket" + JsonConvert.SerializeObject(array));
                     break;
                 }
                 catch (WrapperException e)
@@ -81,7 +81,7 @@ namespace Go
                     {
                         array = new JArray { player1.GetName() };
                     }
-                    Console.WriteLine(JsonConvert.SerializeObject(array));
+                    Console.WriteLine("wrapper" + JsonConvert.SerializeObject(array));
                     break;
                 }
                 catch (RefereeException e)
@@ -91,7 +91,7 @@ namespace Go
                     foreach (PlayerWrapper victor in victors)
                         names.Add(victor.GetName());
 
-                    Console.WriteLine(JsonConvert.SerializeObject(names.ToArray()));
+                    Console.WriteLine("referee" + JsonConvert.SerializeObject(names.ToArray()));
                     break;
                 }
 
