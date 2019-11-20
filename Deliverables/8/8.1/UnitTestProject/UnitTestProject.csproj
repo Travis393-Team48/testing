@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PlayeProxyTests.cs" />
+    <Compile Include="AdminUnitTests.cs" />
     <Compile Include="RuleCheckerUnitTests.cs" />
     <Compile Include="PlayerUnitTests.cs" />
     <Compile Include="RefereeUnitTests.cs" />
