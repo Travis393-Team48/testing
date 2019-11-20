@@ -30,11 +30,12 @@ namespace Go
             }
             catch (Exception e)
             {
+                List<string> victor = new List<string>();
+                victor.Add(name2);
+                return victor;
                 if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                 {
-                    List<string> victor = new List<string>();
-                    victor.Add(name2);
-                    return victor;
+                    
                 }
                 else
                     throw;
@@ -45,11 +46,12 @@ namespace Go
             }
             catch (Exception e)
             {
+                List<string> victor = new List<string>();
+                victor.Add(name1);
+                return victor;
                 if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                 {
-                    List<string> victor = new List<string>();
-                    victor.Add(name1);
-                    return victor;
+                    
                 }
                 else
                     throw;

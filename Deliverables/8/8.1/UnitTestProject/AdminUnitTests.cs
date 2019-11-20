@@ -22,8 +22,8 @@ namespace UnitTests
             int port = 8180;
             List<string> configs = new List<string>()
             {
-                "disconnect on connect A",
                 "disconnect on connect B",
+                "disconnect on connect A",
                 "disconnect on register",
                 "disconnect on receive stones",
                 "disconnect on make a move"
@@ -35,10 +35,7 @@ namespace UnitTests
                 {
                     PlayerClientIllegal client = new PlayerClientIllegal("localhost", port, "illegal", config);
                 }
-                catch(Exception e)
-                {
-                    
-                }
+                catch (PlayerClientException e) { };
                 PlayerWrapper player1 = new PlayerWrapper(port);
                 PlayerWrapper player2 = new PlayerWrapper("less dumb");
                 List<string> victors = Admin.AdministerGame(player1, "remote player", player2, "local player", 9);

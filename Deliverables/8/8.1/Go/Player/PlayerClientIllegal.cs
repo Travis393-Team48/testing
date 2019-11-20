@@ -66,8 +66,6 @@ namespace PlayerSpace
                 ForceDisconnect();
 
             StartReceiving();
-            if (_configuration == "disconnect on connect B")
-                ForceDisconnect();
         }
 
         private void StartReceiving()
@@ -76,6 +74,9 @@ namespace PlayerSpace
             {
                 while (sender.Connected)
                 {
+                    if (_configuration == "disconnect on connect B")
+                        ForceDisconnect();
+
                     byte[] messageReceived = new byte[8192];
                     byte[] messageSent;
                     int byteRecv = sender.Receive(messageReceived);
@@ -180,7 +181,7 @@ namespace PlayerSpace
         {
             sender.Shutdown(SocketShutdown.Both);
             sender.Close();
-            throw new Exception("Force Disconnection - " + _configuration);
+            throw new PlayerClientException("Force Disconnection - " + _configuration);
         }
     }
 }

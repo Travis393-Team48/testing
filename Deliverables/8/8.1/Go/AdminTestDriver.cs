@@ -35,7 +35,7 @@ namespace Go
             List<string> victors = Admin.AdministerGame(player1, "remote player", player2, "local player", 9);
             Console.WriteLine(JsonConvert.SerializeObject(victors.ToArray()));
 
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }
