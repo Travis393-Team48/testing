@@ -12,7 +12,6 @@ namespace PlayerSpace
     /*
      * Simulates an aiPlayer
      * What strategy the aiPlayer uses depends on aiType field
-     * options are "dumb" and "less dumb"
      * 
      * Register must be called before use of other functions
      * ReceiveStones must be called before MakeAMove
@@ -83,8 +82,6 @@ namespace PlayerSpace
                         return "[50]";
                     else
                         return "1234";
-                case "disconnect":
-                    throw new Exception("Force Disconnect");
                 case "less dumb":
                     string oppositeStone;
                     if (_stone == "B")

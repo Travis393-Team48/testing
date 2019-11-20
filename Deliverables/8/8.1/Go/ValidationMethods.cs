@@ -77,7 +77,7 @@ static class ValidationMethods
 
     public static void ValidateAIType(string aiType)
     {
-        if (aiType != "dumb" && aiType != "less dumb" && aiType != "human" && aiType != "illegal" && aiType != "smart" && aiType != "disconnect")
+        if (aiType != "dumb" && aiType != "less dumb" && aiType != "human" && aiType != "illegal" && aiType != "smart")
             throw new WrapperException("Invalid aiType passed to Wrapper: " + aiType);
     }
 

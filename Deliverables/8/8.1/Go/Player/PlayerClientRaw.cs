@@ -13,11 +13,10 @@ namespace PlayerSpace
     /* Client-side Player
      * Networks between PlayerProxy and a Player
      * Holds a client-side listener
-     * ASYNCHRONOUSLY Establishes a connection to server and PacketHandler when created
+     * ASYNCHRONOUSLY Establishes a connection to server when created
      *  will start receiving after connection is established
-     * When a PlayerRequestPacket is received, deciphers the packet
-     *  and calls a function in PlayerWrapper depending the packet
-     * May also send a response message to the server
+     * When data is received, calls a function in PlayerWrapper depending the data
+     * May also send a response to the server
      */
     public class PlayerClientRaw
     {
@@ -96,12 +95,6 @@ namespace PlayerSpace
                             }
                             catch (PlayerException e)
                             {
-                                //if (e.Message == "disconnect")
-                                //{
-                                //    sender.Shutdown(SocketShutdown.Both);
-                                //    sender.Close();
-                                //    return;
-                                //}
                                 move = e.Message;
                             }
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(move));

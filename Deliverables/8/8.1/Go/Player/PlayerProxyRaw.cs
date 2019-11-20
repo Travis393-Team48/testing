@@ -13,11 +13,7 @@ namespace PlayerSpace
      * Networks between some server and a PlayerClient
      * Holds a server-side listener
      * Behavior is the same as a Player (although throws different type of exception)
-     * 
-     * Sends requests to the PlayerClient using Packets
-     * Packets contains a JArray in a generic Json data format (string)
-     * First item of JArray is the method name that should be called on client side
-     * Other items are arguments passed to method
+     * Sends requests to the PlayerClient using as byte arrays and System.Net
      * 
      * Protocals of Interaction:
      *  Register must be called before use of other functions
