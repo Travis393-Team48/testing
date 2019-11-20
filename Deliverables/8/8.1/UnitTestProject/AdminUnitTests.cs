@@ -85,7 +85,9 @@ namespace UnitTests
                 "return 99-99 once",
                 "return characters once",
                 "return numbers once",
-                "return array once"
+                "return array once",
+				"pass forever", //not illegal, but will let other player win
+				"return empty",
             };
 
             foreach (string config in configs)

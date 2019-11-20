@@ -125,7 +125,7 @@ namespace PlayerSpace
                                 break;
                             }
 
-                            //Normal funcitonality:
+                            //Normal functionality:
                             string move;
                             try
                             {
@@ -146,7 +146,7 @@ namespace PlayerSpace
                             break;
 
                         case "GetName":
-                            string name = _player.GetStone();
+                            string name = _player.GetName();
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(name));
                             sender.Send(messageSent);
                             break;

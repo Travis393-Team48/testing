@@ -16,7 +16,7 @@ using System.Net.Sockets;
 namespace Go
 {
     /* Given two players and the size of the game board, administers a game between the two players using referee
-     * Returns an sorted list of strings containing the victor(s)
+     * Returns a sorted list of strings containing the victor(s)
      * if a player is a remote player, the name given in function for that player doesn't matter
      */
     public static class Admin

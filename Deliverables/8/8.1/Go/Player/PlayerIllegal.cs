@@ -19,6 +19,8 @@ namespace PlayerSpace
      * "return characters once"
      * "return numbers once"
      * "return array once"
+     * "pass forever"
+     * "return empty"
      */
     class PlayerIllegal : IPlayer
     {
@@ -94,6 +96,16 @@ namespace PlayerSpace
                         return "[\"illlegal move\"]";
                     }
                     goto default;
+				//not illegal, but will let the other player win
+				case "pass forever":
+					return "pass";
+				case "return empty":
+					if (_once == false)
+					{
+						_once = true;
+						return "";
+					}
+					goto default;
                 default:
                     return _player.MakeAMove(boards);
             }
