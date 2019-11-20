@@ -14,9 +14,7 @@ namespace PlayerSpace
      * Configurations:
      * "disconnect on connect A" - disconnect client right after connecting to server, before calling StartReceiving()
      * "disconnect on connect B" - disconnect client right after connecting to server, after calling StartReceiving()
-     * "send json int on register"
      * "send json array on register"
-     * "send json int on make a move"
      * "send json array on make a move"
      * "send json object on make a move"
      * "disconnect on register"
@@ -90,12 +88,6 @@ namespace PlayerSpace
                         case "register":
                             if (_configuration == "disconnect on register")
                                 ForceDisconnect();
-                            if (_configuration == "send json int on register")
-                            {
-                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(1234));
-                                sender.Send(messageSent);
-                                break;
-                            }
                             if (_configuration == "send json array on register")
                             {
                                 messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(new string[1] {"json array"}));
@@ -117,12 +109,6 @@ namespace PlayerSpace
                         case "make-a-move":
                             if (_configuration == "disconnect on make a move")
                                 ForceDisconnect();
-                            if (_configuration == "send json int on make a move")
-                            {
-                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(1234));
-                                sender.Send(messageSent);
-                                break;
-                            }
                             if (_configuration == "send json array on make a move")
                             {
                                 messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(new string[1] { "json array" }));
@@ -131,7 +117,9 @@ namespace PlayerSpace
                             }
                             if (_configuration == "send json object on make a move")
                             {
-                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(new JObject("json object")));
+                                JObject json = new JObject();
+                                json.Add("invalid", "json");
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(json));
                                 sender.Send(messageSent);
                                 break;
                             }
@@ -171,8 +159,11 @@ namespace PlayerSpace
 
             catch (Exception e)
             {
-                Console.WriteLine(e.Message, this);
-                Console.ReadLine();
+                //Console.WriteLine(e.Message, this);
+                sender.Shutdown(SocketShutdown.Both);
+                sender.Close();
+                //Console.ReadLine();
+                throw;
             }
 
             // Close Socket using the method Close() 

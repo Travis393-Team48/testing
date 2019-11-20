@@ -28,6 +28,7 @@ namespace RefereeSpace
         int _pass_count;
         List<BoardWrapper> _board_history;
         List<PlayerWrapper> _victors;
+        int _size;
 
         public Referee(PlayerWrapper player1, PlayerWrapper player2, int size)
         {
@@ -36,6 +37,7 @@ namespace RefereeSpace
             _board_history.Add(new BoardWrapper(null, size));
             _player1 = player1;
             _player2 = player2;
+            _size = size;
         }
 
         public string Register(string name)
@@ -155,7 +157,11 @@ namespace RefereeSpace
                     if (next_move == "pass")
                        Pass();
                     else
-                       Play(next_move);
+                    {
+                        //maybe this function shouldn't be in referee... need to check if this is a valid point b/c no wrappeer
+                        ValidationMethods.ValidatePoint(next_move, _size);
+                        Play(next_move);
+                    }
                     //Don't Update current player!!! already updated in Pass() and Play()
                     //_current_player = _current_player == _player1 ? _player2 : _player1;
                 }
@@ -170,7 +176,7 @@ namespace RefereeSpace
                 }
                 catch (Exception e)
                 {
-                    if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException)
+                    if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
                         List<string> names = new List<string>();
                         if (_current_player == _player1)

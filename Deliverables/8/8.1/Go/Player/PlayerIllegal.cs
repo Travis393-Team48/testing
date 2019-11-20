@@ -16,9 +16,9 @@ namespace PlayerSpace
      * "always return 1-1"
      * "return 19-19 once"
      * "return 99-99 once"
-     * "return characters"
-     * "return numbers"
-     * "return array"
+     * "return characters once"
+     * "return numbers once"
+     * "return array once"
      */
     class PlayerIllegal : IPlayer
     {
