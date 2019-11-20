@@ -176,15 +176,14 @@ namespace RefereeSpace
                 }
                 catch (Exception e)
                 {
-                    List<string> names = new List<string>();
-                    if (_current_player == _player1)
-                        names.Add(_player2.GetName());
-                    else
-                        names.Add(_player1.GetName());
-                    return names;
                     if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
-                        
+                        List<string> names = new List<string>();
+                        if (_current_player == _player1)
+                            names.Add(_player2.GetName());
+                        else
+                            names.Add(_player1.GetName());
+                        return names;
                     }
                     else
                         throw;
