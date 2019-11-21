@@ -1,6 +1,3 @@
-language: csharp
-solution: Go/Go.sln
-
 env:
  - ASSIGN_MAJOR=8 ASSIGN_MINOR=1 TEAM_NAME=team48
 
