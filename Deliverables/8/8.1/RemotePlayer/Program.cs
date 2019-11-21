@@ -17,7 +17,7 @@ namespace RemotePlayer
             string go = File.ReadAllText("go.config");
             JObject config = JsonConvert.DeserializeObject<JObject>(go);
 
-            PlayerClient player = new PlayerClient(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "smart", 1, "no name");
+            PlayerClient player = new PlayerClient(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "smart", 1, "remote player");
             while (true)
             {
                 if (player.IsConnected())
