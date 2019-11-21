@@ -80,7 +80,7 @@ namespace UnitTests
             //Create local player
             //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
 
-            PlayerClientRaw client = new PlayerClientRaw("localhost", _port, "less dumb", 1, "no name");
+            PlayerClient client = new PlayerClient("localhost", _port, "less dumb", 1, "no name");
 
             PlayerAdapter aiPlayer = new PlayerAdapter(_port);
 

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go", "Go.csproj", "{FD3D12A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject", "..\UnitTestProject\UnitTestProject.csproj", "{CF209E5D-C6D5-420C-8773-2229138AFA71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalPlayer", "..\LocalPlayer\LocalPlayer.csproj", "{42BFED1E-F961-4132-BCDB-492C4CFF7F0D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotePlayer", "..\RemotePlayer\RemotePlayer.csproj", "{42BFED1E-F961-4132-BCDB-492C4CFF7F0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

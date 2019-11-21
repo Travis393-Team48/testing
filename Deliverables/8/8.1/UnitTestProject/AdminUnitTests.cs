@@ -35,7 +35,7 @@ namespace UnitTests
                 {
                     PlayerClientIllegal client = new PlayerClientIllegal("localhost", port, "illegal", config);
                 }
-                catch (PlayerClientException e) { };
+                catch (PlayerClientException) { };
                 PlayerWrapper player1 = new PlayerWrapper(port);
                 PlayerWrapper player2 = new PlayerWrapper("less dumb");
                 List<string> victors = Admin.AdministerGame(player1, "remote player", player2, "local player", 9);

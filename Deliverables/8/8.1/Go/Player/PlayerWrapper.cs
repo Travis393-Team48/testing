@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using CustomExceptions;
+﻿using CustomExceptions;
 
 namespace PlayerSpace
 {
@@ -27,7 +20,7 @@ namespace PlayerSpace
 
         public PlayerWrapper(int port)
         {
-            _player = new PlayerProxyRaw(port);
+            _player = new PlayerProxy(port);
         }
 
         public PlayerWrapper(string aiType, int n = 1)

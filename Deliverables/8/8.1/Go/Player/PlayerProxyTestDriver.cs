@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PlayerSpace;
 using CustomExceptions;
-using System.Diagnostics;
 
 namespace PlayerSpace
 {
@@ -38,7 +33,7 @@ namespace PlayerSpace
             //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
 
             //Create remote player
-            PlayerClientRaw client = new PlayerClientRaw(ipPort["IP"].ToObject<string>(),
+            PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(),
                 ipPort["port"].ToObject<int>(), "less dumb", 1, "no name");
 
             PlayerAdapter aiPlayer = new PlayerAdapter(ipPort["port"].ToObject<int>());

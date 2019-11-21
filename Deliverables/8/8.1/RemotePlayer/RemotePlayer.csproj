@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{42BFED1E-F961-4132-BCDB-492C4CFF7F0D}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>LocalPlayer</RootNamespace>
-    <AssemblyName>LocalPlayer</AssemblyName>
+    <RootNamespace>RemotePlayer</RootNamespace>
+    <AssemblyName>RemotePlayer</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\LocalPlayerObject\</OutputPath>
+    <OutputPath>..\RemotePlayerBuild\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>LocalPlayer.Program</StartupObject>
+    <StartupObject>RemotePlayer.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

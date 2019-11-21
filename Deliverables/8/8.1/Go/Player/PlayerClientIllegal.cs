@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CustomExceptions;
@@ -158,7 +156,7 @@ namespace PlayerSpace
                 }
             }
 
-            catch (Exception e)
+            catch (Exception)
             {
                 //Console.WriteLine(e.Message, this);
                 sender.Shutdown(SocketShutdown.Both);

@@ -1,9 +1,9 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Network;
-using System.Threading.Tasks;
-using CustomExceptions;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 
 namespace PlayerSpace
 {
@@ -11,13 +11,7 @@ namespace PlayerSpace
      * Networks between some server and a PlayerClient
      * Holds a server-side listener
      * Behavior is the same as a Player (although throws different type of exception)
-     * Also holds the name and stone of player which is set afteer Register and ReceiveStones
-     *  kept here as the remote player may not have methods available to retrieve this  data
-     * 
-     * Sends requests to the PlayerClient using Packets
-     * Packets contains a JArray in a generic Json data format (string)
-     * First item of JArray is the method name that should be called on client side
-     * Other items are arguments passed to method
+     * Sends requests to the PlayerClient using as byte arrays and System.Net
      * 
      * Protocals of Interaction:
      *  Register must be called before use of other functions
@@ -26,72 +20,101 @@ namespace PlayerSpace
      */
     class PlayerProxy : IPlayer
     {
-        ServerConnectionContainer _serverConnectionContainer;
+        Socket clientSocket;
         private string _name;
         private string _stone;
 
         public PlayerProxy(int port)
         {
-            //Create a new server container.
-            _serverConnectionContainer = ConnectionFactory.CreateServerConnectionContainer(port, false);
+            // Establish the local endpoint for the socket. Dns.GetHostName 
+            // returns the name of the host running the application. 
+            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
 
-            //Start listening on port port
-            _serverConnectionContainer.StartTCPListener();
-            
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            listener.Bind(localEndPoint);
+            listener.Listen(2);
+
+            clientSocket = listener.Accept();
         }
 
         public string Register(string name)
         {
-            Task<string> response = RegisterAsync(name);
-            while (!response.IsCompleted) { }
-            return response.Result;
-        }
+            try
+            {
+                JArray array = new JArray();
+                array.Add("register");
 
-        private async Task<string> RegisterAsync(string name)
-        {
-            JArray array = new JArray();
-            array.Add("register");
+                // Send a message to Client  using Send() method 
+                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+                clientSocket.Send(message);
 
-            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
-            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
-            _name = JsonConvert.DeserializeObject<string>(response.Response);
-            return JsonConvert.DeserializeObject<string>(response.Response);
+                byte[] bytes = new Byte[1024];
+                int numByte = clientSocket.Receive(bytes);
+                string data = Encoding.ASCII.GetString(bytes, 0, numByte);
+
+                string remote_name = JsonConvert.DeserializeObject<string>(data);
+                _name = remote_name;
+
+                return remote_name;
+            }
+            catch
+            {
+                clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+                throw;
+            }
         }
 
         public void ReceiveStones(string stone)
         {
-            Task response = ReceiveStonesAsync(stone);
-            while (!response.IsCompleted) { }
-            _stone = stone;
-            return;
-        }
+            try
+            {
+                JArray array = new JArray();
+                array.Add("receive-stones");
+                array.Add(stone);
 
-        private async Task ReceiveStonesAsync(string stone)
-        {
-            JArray array = new JArray();
-            array.Add("receive-stones");
-            array.Add(stone);
+                // Send a message to Client  using Send() method 
+                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+                clientSocket.Send(message);
 
-            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
-            await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
+                _stone = stone;
+
+                return;
+            }
+            catch
+            {
+                clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+                throw;
+            }
         }
 
         public string MakeAMove(string[][][] boards)
         {
-            Task<string> response = MakeAMoveAsync(boards);
-            while (!response.IsCompleted) { }
-            return response.Result;
-        }
+            try
+            {
+                JArray array = new JArray();
+                array.Add("make-a-move");
+                array.Add(JToken.Parse(JsonConvert.SerializeObject(boards)));
 
-        private async Task<string> MakeAMoveAsync(string[][][] boards)
-        {
-            JArray array = new JArray();
-            array.Add("make-a-move");
-            array.Add(JToken.Parse(JsonConvert.SerializeObject(boards)));
+                // Send a message to Client  using Send() method 
+                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+                clientSocket.Send(message);
 
-            PlayerRequestPacket packet = new PlayerRequestPacket(JsonConvert.SerializeObject(array));
-            PlayerResponsePacket response = await _serverConnectionContainer.TCP_Connections[0].SendAsync<PlayerResponsePacket>(packet);
-            return JsonConvert.DeserializeObject<string>(response.Response);
+                byte[] bytes = new Byte[8192];
+                int numByte = clientSocket.Receive(bytes);
+                string data = Encoding.ASCII.GetString(bytes, 0, numByte);
+
+                return JsonConvert.DeserializeObject<string>(data);
+            }
+            catch
+            {
+                clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+                throw;
+            }
         }
 
         public string GetStone()
@@ -103,7 +126,6 @@ namespace PlayerSpace
         {
             return _name;
         }
-
 
     }
 }

@@ -1,17 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CustomExceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayerSpace;
-using RefereeSpace;
-using System.Net;
-using System.Net.Sockets;
 
 namespace Go
 {
