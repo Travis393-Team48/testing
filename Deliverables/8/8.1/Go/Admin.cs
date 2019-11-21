@@ -8,12 +8,15 @@ using System.Net.Sockets;
 
 namespace Go
 {
-    /* Given two players and the size of the game board, administers a game between the two players using referee
-     * Returns a sorted list of strings containing the victor(s)
-     * if a player is a remote player, the name given in function for that player doesn't matter
+    /*
+     * Provides functions to administer games
      */
     public static class Admin
     {
+        /* Given two players and the size of the game board, administers a game between the two players using referee
+         * Returns a sorted list of strings containing the victor(s)
+         * if a player is a remote player, the name given in function for that player doesn't matter
+         */
         public static List<string> AdministerGame(PlayerWrapper player1, string name1, PlayerWrapper player2, string name2, int size)
         {
             RefereeWrapper referee = new RefereeWrapper(player1, player2, size);

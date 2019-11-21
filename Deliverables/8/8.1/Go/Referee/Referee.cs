@@ -11,7 +11,7 @@ using System.Net.Sockets;
 namespace RefereeSpace
 {
     /* Referee class
-     * Expects two players, and will call Register and Receive Stones for them
+     * Expects two players, and calling Register will call Register and Receive Stones for thw two players
      * Hold two players and referees a game between them
      * Throws a RefereeException if a player makes an illegal move
      * Throws an InvalidOperationException if Register is somehow called more than twice (shouldn't ever happen as wrapper checks for this)
