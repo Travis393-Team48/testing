@@ -1,0 +1,157 @@
+﻿using System;
+
+namespace CustomExceptions
+{
+    public class InvalidJsonInputException : Exception
+    {
+        public InvalidJsonInputException()
+        {
+        }
+
+        public InvalidJsonInputException(string message)
+            : base(message)
+        {
+        }
+
+        public InvalidJsonInputException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class WrapperException : Exception
+    {
+        public WrapperException()
+        {
+        }
+
+        public WrapperException(string message)
+            : base(message)
+        {
+        }
+
+        public WrapperException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class RuleCheckerException : Exception
+    {
+        public RuleCheckerException()
+        {
+        }
+
+        public RuleCheckerException(string message)
+            : base(message)
+        {
+        }
+
+        public RuleCheckerException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class BoardException : Exception
+    {
+        public BoardException()
+        {
+        }
+
+        public BoardException(string message)
+            : base(message)
+        {
+        }
+
+        public BoardException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class PlayerException : Exception
+    {
+        public PlayerException()
+        {
+        }
+
+        public PlayerException(string message)
+            : base(message)
+        {
+        }
+
+        public PlayerException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class RefereeException : Exception
+    {
+        public RefereeException()
+        {
+        }
+
+        public RefereeException(string message)
+            : base(message)
+        {
+        }
+
+        public RefereeException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class PlayerClientException : Exception
+    {
+        public PlayerClientException()
+        {
+        }
+
+        public PlayerClientException(string message)
+            : base(message)
+        {
+        }
+
+        public PlayerClientException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class PlayerProxyException : Exception
+    {
+        public PlayerProxyException()
+        {
+        }
+
+        public PlayerProxyException(string message)
+            : base(message)
+        {
+        }
+
+        public PlayerProxyException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class AdminException : Exception
+    {
+        public AdminException()
+        {
+        }
+
+        public AdminException(string message)
+            : base(message)
+        {
+        }
+
+        public AdminException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+}
