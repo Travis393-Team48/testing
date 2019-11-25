@@ -11,5 +11,7 @@
         string GetStone();
 
         string GetName();
+
+        string EndGame();
     }
 }

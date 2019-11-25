@@ -169,6 +169,11 @@ namespace PlayerSpace
             return _name;
         }
 
+        public string EndGame()
+        {
+            return "OK";
+        }
+
         //Helper function for sorting possible moves()
         private static int ComparePossibleMoves(List<string> x, List<string> y)
         {

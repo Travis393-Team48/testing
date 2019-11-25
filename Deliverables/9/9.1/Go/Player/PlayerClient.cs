@@ -98,7 +98,11 @@ namespace PlayerSpace
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(move));
                             sender.Send(messageSent);
                             break;
-
+                        case "end-game":
+                            string end = _player.EndGame();
+                            messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(end));
+                            sender.Send(messageSent);
+                            break;
                         case "GetStone":
                             string stone = _player.GetStone();
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(stone));

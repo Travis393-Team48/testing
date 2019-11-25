@@ -15,9 +15,11 @@ namespace PlayerSpace
      * "send json array on register"
      * "send json array on make a move"
      * "send json object on make a move"
+     * "send json object on end game"
      * "disconnect on register"
      * "disconnect on receive stones"
      * "disconnect on make a move"
+     * "disconnect on end game"
      */
     public class PlayerClientIllegal
     {
@@ -134,6 +136,24 @@ namespace PlayerSpace
                                 move = e.Message;
                             }
                             messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(move));
+                            sender.Send(messageSent);
+                            break;
+
+                        case "end-game":
+                            if (_configuration == "disconnect on end game")
+                                ForceDisconnect();
+                            else if (_configuration == "send json object on end game")
+                            {
+                                JObject json = new JObject();
+                                json.Add("invalid", "json");
+                                messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(json));
+                                sender.Send(messageSent);
+                                break;
+                            }
+
+                            //Normal Functionality
+                            string end = "OK";
+                            messageSent = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(end));
                             sender.Send(messageSent);
                             break;
 
