@@ -30,10 +30,29 @@ namespace Go
 				_number_of_remote_players = args[1];
 			}
 
-			List<string> finalRankings = Admin.AdministerTournament(tournament_type, _number_of_remote_players, port, path, 9);
-			
+			List<Admin.PlayerRanking> finalRankings = Admin.AdministerTournament(tournament_type, _number_of_remote_players, port, path, 9);
+			List<string> printRankings = new List<string>();
+			printRankings.Add("=========== Final Rankings =============");
+			int currRank = 0;
+			for (int i= 0; i < finalRankings.Count; i++)
+			{
+				if (i != 0 && finalRankings[i].score == finalRankings[i - 1].score)
+				{
+					printRankings[currRank] = printRankings[currRank] + ", " + finalRankings[i].name;
+				}
+				else
+				{
+					printRankings.Add((i+1).ToString() + ": " + finalRankings[i].name);
+					currRank = i + 1;
+				}
+			}
 
-			//Console.WriteLine(JsonConvert.SerializeObject(finalRankings.ToArray()));
+			printRankings.Add("========================================");
+
+			foreach (string s in printRankings)
+			{
+				Console.WriteLine(JsonConvert.SerializeObject(printRankings));
+			}	
 		}
 	}
 }
