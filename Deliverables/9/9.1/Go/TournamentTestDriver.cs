@@ -20,6 +20,7 @@ namespace Go
 
 			string tournament_type;
 			int _number_of_remote_players;
+			
 			if (args.Length != 2)
 			{
 				throw new ArgumentException("Tournament type or number of remote players not specified");
@@ -27,7 +28,7 @@ namespace Go
 			else
 			{
 				tournament_type = args[0];
-				_number_of_remote_players = args[1];
+				_number_of_remote_players = Int32.Parse(args[1]);
 			}
 
 			List<Admin.PlayerRanking> finalRankings = Admin.AdministerTournament(tournament_type, _number_of_remote_players, port, path, 9);
