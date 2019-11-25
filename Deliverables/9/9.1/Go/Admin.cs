@@ -58,7 +58,7 @@ namespace Go
             return victors;
         }
 
-        public static List<string> AdministerTournament(string tournament_type, int _number_of_remote_players, int port, string path, int board_size = 9)
+        public static List<PlayerRanking> AdministerTournament(string tournament_type, int _number_of_remote_players, int port, string path, int board_size = 9)
         {
             //locals and initialization
             string goPlayer = File.ReadAllText(path);
@@ -119,8 +119,25 @@ namespace Go
             }
         }
 
-        private static List<string> AdministerRoundRobin(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
+        /*
+         * Administers a round robin tournament
+         * Returns a sorted list of player rankings
+         */
+        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
         {
+            List<string> cheaters = new List<string>();
+
+            for (int i = 1; i < players.Count; i++)
+            {
+                if (has_cheated[i])
+                {
+                    cheaters.Add(player_names[i]);
+                    //technically incorrect default-player
+                    players[i] = new PlayerWrapper("less dumb", 1, true);
+                    player_names[i] = players[i].Register("replacement player" + i.ToString());
+                }
+            }
+
             //Play tournament
             int[][] matches = new int[players.Count][];
             for (int i = 0; i < players.Count; i++)
@@ -150,10 +167,24 @@ namespace Go
 
                     if (has_cheater)
                     {
-                        int cheater = victors[0] == player_names[i] ? i : j;
+                        int cheater = victors[0] == player_names[i] ? j : i;
                         has_cheated[cheater] = true;
 
-                        throw new NotImplementedException();
+                        //replace with default player
+                        cheaters.Add(player_names[cheater]);
+                        //technically incorrect default-player
+                        players[cheater] = new PlayerWrapper("less dumb", 1, true);
+                        player_names[cheater] = players[cheater].Register("replacement player" + cheater.ToString());
+                        
+                        //modify scores
+                        for (int c = 0; c < players.Count; c++)
+                        {
+                            if (matches[cheater][c] == cheater)
+                            {
+                                matches[cheater][c] = c;
+                                matches[c][cheater] = c;
+                            }
+                        }
                     }
                     else
                     {
@@ -175,12 +206,120 @@ namespace Go
             }
 
             //Return rankings
-            throw new NotImplementedException();
+            List<PlayerRanking> player_rankings = new List<PlayerRanking>();
+            for(int i = 0; i < players.Count; i++)
+            {
+                int score = 0;
+                for (int j = 0; j < players.Count; i++)
+                {
+                    if (matches[i][j] == i)
+                        score++;
+                }
+                player_rankings.Add(new PlayerRanking(player_names[i], score));
+            }
+
+            player_rankings.Sort(SortPlayerRankings);
+
+            foreach(string cheater in cheaters)
+                player_rankings.Add(new PlayerRanking(cheater, 0));
+
+            return player_rankings;
         }
 
-        private static List<string> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
+        private static List<PlayerRanking> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
         {
-            throw new NotImplementedException();
+            List<PlayerWrapper> remainingPlayers = players;
+            List<string> remainingPlayersNames = player_names;
+            List<PlayerRanking> rankings = new List<PlayerRanking>();
+            int score = 1;
+
+            PlayerWrapper player1;
+            PlayerWrapper player2;
+            string player1Name;
+            string player2Name;
+            RefereeWrapper referee;
+            List<string> victors;
+            List<PlayerWrapper> winners;
+            List<string> winnersNames;
+            bool has_cheater;
+            string victor;
+            while (remainingPlayers.Count != 1)
+            {
+                winners = new List<PlayerWrapper>();
+                winnersNames = new List<string>();
+                
+                while(remainingPlayers.Count != 0)
+                {
+                    //Update players/player names
+                    player1 = remainingPlayers[0];
+                    player2 = remainingPlayers[1];
+                    remainingPlayers.RemoveAt(0);
+                    remainingPlayers.RemoveAt(0);
+                    player1Name = remainingPlayersNames[0];
+                    player2Name = remainingPlayersNames[1];
+                    remainingPlayersNames.RemoveAt(0);
+                    remainingPlayersNames.RemoveAt(0);
+
+                    referee = new RefereeWrapper(player1, player2, board_size);
+                    victors = referee.RefereeGame(player1Name, player2Name, out has_cheater);
+
+                    if (victors.Count == 2)
+                    {
+                        Random rng = new Random();
+                        victor = victors[rng.Next(0, 2)];
+                    }
+                    else if (victors.Count == 1)
+                        victor = victors[0];
+                    else
+                        throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
+
+                    if (victor == player1Name)
+                    {
+                        winners.Add(player1);
+                        winnersNames.Add(player1Name);
+
+                        if (has_cheater)
+                            rankings.Add(new PlayerRanking(player2Name, 0));
+                        else
+                            rankings.Add(new PlayerRanking(player2Name, score));
+                    }
+                    else if (victor == player2Name)
+                    {
+                        winners.Add(player2);
+                        winnersNames.Add(player2Name);
+
+                        if (has_cheater)
+                            rankings.Add(new PlayerRanking(player1Name, 0));
+                        else
+                            rankings.Add(new PlayerRanking(player1Name, score));
+                    }
+                    else
+                        throw new AdminException("Non-existant victor returned in Admin: " + victor);
+                }
+
+                remainingPlayers = winners;
+                score++;
+            }
+
+            rankings.Sort(SortPlayerRankings);
+            return rankings;
+        }
+
+        public struct PlayerRanking
+        {
+            public string name;
+            public int score;
+
+            public PlayerRanking(string n, int s)
+            {
+                name = n;
+                score = s;
+            }
+        }
+
+        private static int SortPlayerRankings(PlayerRanking player1, PlayerRanking player2)
+        {
+            return player1.score.CompareTo(player2.score);
         }
     }
 }
