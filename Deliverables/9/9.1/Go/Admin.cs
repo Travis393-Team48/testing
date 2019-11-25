@@ -180,7 +180,6 @@ namespace Go
 
         private static List<string> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
         {
-
             throw new NotImplementedException();
         }
     }
