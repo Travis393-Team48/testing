@@ -84,8 +84,8 @@ namespace Go
             }
 
             //reset these lists
-            _player_names = new List<string>();
-            _has_cheated = new List<bool>();
+            List<string> player_names = new List<string>();
+            List<bool> has_cheated = new List<bool>();
 
             //Register players and get their names
             int playerNumber = 0;
@@ -93,7 +93,7 @@ namespace Go
             {
                 try
                 {
-                    _player_names.Add(player.Register("player" + playerNumber));
+                    player_names.Add(player.Register("player" + playerNumber));
                     playerNumber++;
                 }
                 catch (Exception e)
@@ -101,7 +101,7 @@ namespace Go
                     if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
                         players[playerNumber] = new PlayerWrapper("less dumb", depth, true);
-                        _has_cheated[playerNumber] = true;
+                        has_cheated[playerNumber] = true;
                     }
                     else
                         throw;
@@ -111,15 +111,15 @@ namespace Go
             switch (tournament_type)
             {
                 case "cup":
-                    return AdministerSingleElimination(players);
+                    return AdministerSingleElimination(players, player_names, has_cheated, board_size);
                 case "league":
-                    return AdministerRoundRobin(players);
+                    return AdministerRoundRobin(players, player_names, has_cheated, board_size);
                 default:
                     throw new AdminException("Invalid tournament type in Admin");
             }
         }
 
-        private static List<string> AdministerRoundRobin(List<PlayerWrapper> players)
+        private static List<string> AdministerRoundRobin(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
         {
             //Play tournament
             int[][] matches = new int[players.Count][];
@@ -145,13 +145,13 @@ namespace Go
                     if (matches[i][j] != -1)
                         continue;
 
-                    referee = new RefereeWrapper(players[i], players[j], _board_size);
-                    victors = referee.RefereeGame(_player_names[i], _player_names[j], out has_cheater);
+                    referee = new RefereeWrapper(players[i], players[j], board_size);
+                    victors = referee.RefereeGame(player_names[i], player_names[j], out has_cheater);
 
                     if (has_cheater)
                     {
-                        int cheater = victors[0] == _player_names[i] ? i : j;
-                        _has_cheated[cheater] = true;
+                        int cheater = victors[0] == player_names[i] ? i : j;
+                        has_cheated[cheater] = true;
 
                         throw new NotImplementedException();
                     }
@@ -169,7 +169,7 @@ namespace Go
                             throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
 
                         //Update matches
-                        matches[i][j] = matches[j][i] = victor == _player_names[i] ? i : j;
+                        matches[i][j] = matches[j][i] = victor == player_names[i] ? i : j;
                     }
                 }
             }
@@ -178,7 +178,7 @@ namespace Go
             throw new NotImplementedException();
         }
 
-        private static List<string> AdministerSingleElimination(List<PlayerWrapper> players)
+        private static List<string> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
         {
 
             throw new NotImplementedException();
