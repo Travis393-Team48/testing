@@ -202,6 +202,78 @@ namespace Go
                         //Update matches
                         matches[i][j] = matches[j][i] = victor == player_names[i] ? i : j;
                     }
+
+                    #region End Game
+                    try
+                    {
+                        //assuming default players won't cheat
+                        if (!has_cheated[i])
+                        {
+                            string end = players[i].EndGame();
+                            if (end != "OK")
+                                throw new WrapperException("invalid endgame message");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                        {
+                            has_cheated[i] = true;
+
+                            cheaters.Add(player_names[i]);
+                            //technically incorrect default-player
+                            players[i] = new PlayerWrapper("less dumb", 1, true);
+                            player_names[i] = players[i].Register("replacement player" + i.ToString());
+
+                            //modify scores
+                            for (int c = 0; c < players.Count; c++)
+                            {
+                                if (matches[i][c] == i)
+                                {
+                                    matches[i][c] = c;
+                                    matches[c][i] = c;
+                                }
+                            }
+                        }
+                        else
+                            throw;
+                    }
+
+                    try
+                    {
+                        //assuming default players won't cheat
+                        if (!has_cheated[i])
+                        {
+                            string end = players[j].EndGame();
+                            if (end != "OK")
+                                throw new WrapperException("invalid endgame message");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                        {
+                            has_cheated[j] = true;
+
+                            cheaters.Add(player_names[j]);
+                            //technically incorrect default-player
+                            players[j] = new PlayerWrapper("less dumb", 1, true);
+                            player_names[j] = players[j].Register("replacement player" + j.ToString());
+
+                            //modify scores
+                            for (int c = 0; c < players.Count; c++)
+                            {
+                                if (matches[j][c] == j)
+                                {
+                                    matches[j][c] = c;
+                                    matches[c][j] = c;
+                                }
+                            }
+                        }
+                        else
+                            throw;
+                    }
+                    #endregion
                 }
             }
 
@@ -233,35 +305,27 @@ namespace Go
             List<PlayerRanking> rankings = new List<PlayerRanking>();
             int score = 1;
 
-            PlayerWrapper player1;
-            PlayerWrapper player2;
-            string player1Name;
-            string player2Name;
-            RefereeWrapper referee;
-            List<string> victors;
-            List<PlayerWrapper> winners;
-            List<string> winnersNames;
-            bool has_cheater;
             string victor;
+            int replacementCount = 0;
             while (remainingPlayers.Count != 1)
             {
-                winners = new List<PlayerWrapper>();
-                winnersNames = new List<string>();
+                List<PlayerWrapper> winners = new List<PlayerWrapper>();
+                List<string> winnersNames = new List<string>();
                 
                 while(remainingPlayers.Count != 0)
                 {
                     //Update players/player names
-                    player1 = remainingPlayers[0];
-                    player2 = remainingPlayers[1];
+                    PlayerWrapper player1 = remainingPlayers[0];
+                    PlayerWrapper player2 = remainingPlayers[1];
                     remainingPlayers.RemoveAt(0);
                     remainingPlayers.RemoveAt(0);
-                    player1Name = remainingPlayersNames[0];
-                    player2Name = remainingPlayersNames[1];
+                    string player1Name = remainingPlayersNames[0];
+                    string player2Name = remainingPlayersNames[1];
                     remainingPlayersNames.RemoveAt(0);
                     remainingPlayersNames.RemoveAt(0);
 
-                    referee = new RefereeWrapper(player1, player2, board_size);
-                    victors = referee.RefereeGame(player1Name, player2Name, out has_cheater);
+                    RefereeWrapper referee = new RefereeWrapper(player1, player2, board_size);
+                    List<string> victors = referee.RefereeGame(player1Name, player2Name, out bool has_cheater);
 
                     if (victors.Count == 2)
                     {
@@ -275,23 +339,93 @@ namespace Go
 
                     if (victor == player1Name)
                     {
-                        winners.Add(player1);
-                        winnersNames.Add(player1Name);
+                        try
+                        {
+                            string end = player1.EndGame();
+                            if (end != "OK")
+                                throw new WrapperException("invalid endgame message");
+                            winners.Add(player1);
+                            winnersNames.Add(player1Name);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                            {
+                                rankings.Add(new PlayerRanking(player1Name, 0));
+                                //technically incorrect default-player
+                                PlayerWrapper replacement = new PlayerWrapper("less dumb", 1, true);
+                                winners.Add(replacement);
+                                winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
+                                replacementCount++;
+                            }
+                            else
+                                throw;
+                        }
 
                         if (has_cheater)
                             rankings.Add(new PlayerRanking(player2Name, 0));
                         else
-                            rankings.Add(new PlayerRanking(player2Name, score));
+                        {
+                            try
+                            {
+                                string end = player2.EndGame();
+                                if (end != "OK")
+                                    throw new WrapperException("invalid endgame message");
+                                rankings.Add(new PlayerRanking(player2Name, score));
+                            }
+                            catch (Exception e)
+                            {
+                                if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                                    rankings.Add(new PlayerRanking(player2Name, 0));
+                                else
+                                    throw;
+                            }
+                        }
                     }
                     else if (victor == player2Name)
                     {
-                        winners.Add(player2);
-                        winnersNames.Add(player2Name);
+                        try
+                        {
+                            string end = player2.EndGame();
+                            if (end != "OK")
+                                throw new WrapperException("invalid endgame message");
+                            winners.Add(player2);
+                            winnersNames.Add(player2Name);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                            {
+                                rankings.Add(new PlayerRanking(player2Name, 0));
+                                //technically incorrect default-player
+                                PlayerWrapper replacement = new PlayerWrapper("less dumb", 1, true);
+                                winners.Add(replacement);
+                                winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
+                                replacementCount++;
+                            }
+                            else
+                                throw;
+                        }
 
                         if (has_cheater)
                             rankings.Add(new PlayerRanking(player1Name, 0));
                         else
-                            rankings.Add(new PlayerRanking(player1Name, score));
+                        {
+                            try
+                            {
+                                string end = player1.EndGame();
+                                if (end != "OK")
+                                    throw new WrapperException("invalid endgame message");
+                                rankings.Add(new PlayerRanking(player1Name, score));
+                            }
+                            catch (Exception e)
+                            {
+                                if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                                    rankings.Add(new PlayerRanking(player1Name, 0));
+                                else
+                                    throw;
+                            }
+                        }
                     }
                     else
                         throw new AdminException("Non-existant victor returned in Admin: " + victor);
@@ -300,6 +434,8 @@ namespace Go
                 remainingPlayers = winners;
                 score++;
             }
+
+            rankings.Add(new PlayerRanking(remainingPlayersNames[0], score));
 
             rankings.Sort(SortPlayerRankings);
             return rankings;

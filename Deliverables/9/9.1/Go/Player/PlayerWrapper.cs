@@ -86,5 +86,10 @@ namespace PlayerSpace
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register not called before GetName");
             return _player.GetName();
         }
+
+        public string EndGame()
+        {
+            return _player.EndGame();
+        }
     }
 }

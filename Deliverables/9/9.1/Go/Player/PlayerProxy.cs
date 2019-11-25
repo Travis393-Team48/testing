@@ -127,5 +127,29 @@ namespace PlayerSpace
             return _name;
         }
 
+        public string EndGame()
+        {
+            try
+            {
+                JArray array = new JArray();
+                array.Add("end-game");
+
+                // Send a message to Client  using Send() method 
+                byte[] message = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(array));
+                clientSocket.Send(message);
+
+                byte[] bytes = new Byte[8192];
+                int numByte = clientSocket.Receive(bytes);
+                string data = Encoding.ASCII.GetString(bytes, 0, numByte);
+
+                return JsonConvert.DeserializeObject<string>(data);
+            }
+            catch
+            {
+                clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+                throw;
+            }
+        }
     }
 }

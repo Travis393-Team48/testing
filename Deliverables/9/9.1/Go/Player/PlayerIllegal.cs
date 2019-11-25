@@ -16,6 +16,7 @@ namespace PlayerSpace
      * "return array once"
      * "pass forever"
      * "return empty"
+     * "return illegal endgame"
      */
     class PlayerIllegal : IPlayer
     {
@@ -116,6 +117,11 @@ namespace PlayerSpace
         public string GetName()
         {
             return _player.GetName();
+        }
+
+        public string EndGame()
+        {
+            return "Ok";
         }
     }
 }
