@@ -69,7 +69,7 @@ namespace Go
 			}
 
             //REMOVE BEFORE SUBMISSION
-            Console.ReadLine();
+            //Console.ReadLine();
 		}
 	}
 }
