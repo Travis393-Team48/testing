@@ -57,6 +57,9 @@ namespace UnitTests
 
                 port++;
             }
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
 
         [TestMethod]
@@ -92,6 +95,9 @@ namespace UnitTests
 
                 port++;
             }
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
 
         [TestMethod]
@@ -132,6 +138,9 @@ namespace UnitTests
 
                 port++;
             }
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
 
         [TestMethod]

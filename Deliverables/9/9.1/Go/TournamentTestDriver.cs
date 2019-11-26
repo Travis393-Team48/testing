@@ -82,6 +82,9 @@ namespace Go
 
             //REMOVE BEFORE SUBMISSION
             Console.ReadLine();
-		}
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+        }
 	}
 }

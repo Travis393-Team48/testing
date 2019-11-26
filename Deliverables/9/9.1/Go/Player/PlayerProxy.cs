@@ -55,7 +55,7 @@ namespace PlayerSpace
             catch
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                //clientSocket.Close();
                 throw;
             }
         }
@@ -79,7 +79,7 @@ namespace PlayerSpace
             catch
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                //clientSocket.Close();
                 throw;
             }
         }
@@ -105,7 +105,7 @@ namespace PlayerSpace
             catch
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                //clientSocket.Close();
                 throw;
             }
         }
@@ -140,7 +140,7 @@ namespace PlayerSpace
             catch
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                //clientSocket.Close();
                 throw;
             }
         }
