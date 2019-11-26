@@ -24,17 +24,10 @@ namespace PlayerSpace
         private string _name;
         private string _stone;
 
-        public PlayerProxy(int port)
+        public PlayerProxy(Socket socket)
         {
-            // Establish the local endpoint for the socket. Dns.GetHostName 
-            // returns the name of the host running the application. 
-            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
-
-            // Creation TCP/IP Socket using Socket Class Costructor 
-            Socket listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            listener.Bind(localEndPoint);
-            listener.Listen(2);
+            Socket listener = socket;
+            listener.Listen(1);
 
             clientSocket = listener.Accept();
         }

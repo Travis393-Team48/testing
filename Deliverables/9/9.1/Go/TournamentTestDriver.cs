@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,7 +20,16 @@ namespace Go
 			int port = config["port"].ToObject<int>();
 			string path = config["default-player"].ToObject<string>();
 
-			string tournament_type;
+            //Network setup
+            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
+
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(localEndPoint);
+            Admin.Socket = socket;
+
+            string tournament_type;
 			int _number_of_remote_players;
 			
 			if (args.Length != 2)
@@ -55,7 +66,10 @@ namespace Go
 			foreach (string s in printRankings)
 			{
 				Console.WriteLine(s);
-			}	
+			}
+
+            //REMOVE BEFORE SUBMISSION
+            Console.ReadLine();
 		}
 	}
 }

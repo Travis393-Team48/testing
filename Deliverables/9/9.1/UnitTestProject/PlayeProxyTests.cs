@@ -9,6 +9,8 @@ using FluentAssertions;
 using FluentAssertions.Json;
 using PlayerSpace;
 using CustomExceptions;
+using System.Net;
+using System.Net.Sockets;
 
 namespace UnitTests
 {
@@ -74,15 +76,17 @@ namespace UnitTests
 
             List<JToken> finalList = new List<JToken>();
 
-            //string go = File.ReadAllText("go.config");
-            //JObject ipPort = JsonConvert.DeserializeObject<JObject>(go);
-            //string path = ipPort["default-player"].ToObject<string>();
-            //Create local player
-            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            //Network setup
+            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, _port);
+
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(localEndPoint);
 
             PlayerClient client = new PlayerClient("localhost", _port, "less dumb", 1, "no name");
 
-            PlayerAdapter aiPlayer = new PlayerAdapter(_port);
+            PlayerAdapter aiPlayer = new PlayerAdapter(socket);
 
             _port++;
 

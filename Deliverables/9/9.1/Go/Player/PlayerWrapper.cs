@@ -1,4 +1,5 @@
 ﻿using CustomExceptions;
+using System.Net.Sockets;
 
 namespace PlayerSpace
 {
@@ -19,9 +20,9 @@ namespace PlayerSpace
         private bool _receive_stones_flag;
         private bool _is_tournament_player;
 
-        public PlayerWrapper(int port, bool tournament = false)
+        public PlayerWrapper(Socket socket, bool tournament = false)
         {
-            _player = new PlayerProxy(port);
+            _player = new PlayerProxy(socket);
             _is_tournament_player = tournament;
         }
 

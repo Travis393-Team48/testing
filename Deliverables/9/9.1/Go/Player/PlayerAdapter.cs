@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Sockets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CustomExceptions;
@@ -23,9 +24,9 @@ namespace PlayerSpace
             _player = new PlayerWrapper(aiType, n);
         }
 
-        public PlayerAdapter(int port)
+        public PlayerAdapter(Socket socket)
         {
-            _player = new PlayerWrapper(port);
+            _player = new PlayerWrapper(socket);
         }
 
         public JToken JsonCommand(JToken jtoken, string name = "no name")
