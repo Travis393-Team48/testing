@@ -465,7 +465,7 @@ namespace Go
 
         private static int SortPlayerRankings(PlayerRanking player1, PlayerRanking player2)
         {
-            return player1.score.CompareTo(player2.score);
+            return player2.score.CompareTo(player1.score);
         }
     }
 }
