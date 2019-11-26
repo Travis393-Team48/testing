@@ -70,7 +70,6 @@ namespace Go
             for (int i = 0; i < _number_of_remote_players; i++)
             {
                 players.Add(new PlayerWrapper(port, true));
-                port++;
             }
 
             if (Math.Log(_number_of_remote_players, 2) != 0)
@@ -79,8 +78,12 @@ namespace Go
 
                 for (int i = 0; i < additional_players; i++)
                 {
-                    players.Add(new PlayerWrapper("less dumb", depth, true));
+                    players.Add(new PlayerWrapper("smart", depth, true));
                 }
+            }
+            else if (_number_of_remote_players == 1)
+            {
+				players.Add(new PlayerWrapper("smart", depth, true));
             }
 
             //reset these lists
@@ -94,14 +97,15 @@ namespace Go
                 try
                 {
                     player_names.Add(player.Register("player" + playerNumber));
+					has_cheated.Add(false);
                     playerNumber++;
                 }
                 catch (Exception e)
                 {
                     if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
-                        players[playerNumber] = new PlayerWrapper("less dumb", depth, true);
-                        has_cheated[playerNumber] = true;
+                        players[playerNumber] = new PlayerWrapper("smart", depth, true);                        
+						has_cheated.Add(true);
                     }
                     else
                         throw;
@@ -111,8 +115,10 @@ namespace Go
             switch (tournament_type)
             {
                 case "cup":
+					Console.WriteLine("start cup game");
                     return AdministerSingleElimination(players, player_names, has_cheated, board_size);
                 case "league":
+					Console.WriteLine("starting league game");
                     return AdministerRoundRobin(players, player_names, has_cheated, board_size);
                 default:
                     throw new AdminException("Invalid tournament type in Admin");
@@ -127,13 +133,13 @@ namespace Go
         {
             List<string> cheaters = new List<string>();
 
-            for (int i = 1; i < players.Count; i++)
+            for (int i = 0; i < players.Count; i++)
             {
                 if (has_cheated[i])
                 {
                     cheaters.Add(player_names[i]);
                     //technically incorrect default-player
-                    players[i] = new PlayerWrapper("less dumb", 1, true);
+                    players[i] = new PlayerWrapper("smart", 1, true);
                     player_names[i] = players[i].Register("replacement player" + i.ToString());
                 }
             }
@@ -173,7 +179,7 @@ namespace Go
                         //replace with default player
                         cheaters.Add(player_names[cheater]);
                         //technically incorrect default-player
-                        players[cheater] = new PlayerWrapper("less dumb", 1, true);
+                        players[cheater] = new PlayerWrapper("smart", 1, true);
                         player_names[cheater] = players[cheater].Register("replacement player" + cheater.ToString());
                         
                         //modify scores
@@ -222,7 +228,7 @@ namespace Go
 
                             cheaters.Add(player_names[i]);
                             //technically incorrect default-player
-                            players[i] = new PlayerWrapper("less dumb", 1, true);
+                            players[i] = new PlayerWrapper("smart", 1, true);
                             player_names[i] = players[i].Register("replacement player" + i.ToString());
 
                             //modify scores
@@ -257,7 +263,7 @@ namespace Go
 
                             cheaters.Add(player_names[j]);
                             //technically incorrect default-player
-                            players[j] = new PlayerWrapper("less dumb", 1, true);
+                            players[j] = new PlayerWrapper("smart", 1, true);
                             player_names[j] = players[j].Register("replacement player" + j.ToString());
 
                             //modify scores
@@ -282,7 +288,7 @@ namespace Go
             for(int i = 0; i < players.Count; i++)
             {
                 int score = 0;
-                for (int j = 0; j < players.Count; i++)
+                for (int j = 0; j < players.Count; j++)
                 {
                     if (matches[i][j] == i)
                         score++;
@@ -353,7 +359,7 @@ namespace Go
                             {
                                 rankings.Add(new PlayerRanking(player1Name, 0));
                                 //technically incorrect default-player
-                                PlayerWrapper replacement = new PlayerWrapper("less dumb", 1, true);
+                                PlayerWrapper replacement = new PlayerWrapper("smart", 1, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
                                 replacementCount++;
@@ -398,7 +404,7 @@ namespace Go
                             {
                                 rankings.Add(new PlayerRanking(player2Name, 0));
                                 //technically incorrect default-player
-                                PlayerWrapper replacement = new PlayerWrapper("less dumb", 1, true);
+                                PlayerWrapper replacement = new PlayerWrapper("smart", 1, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
                                 replacementCount++;
@@ -432,6 +438,7 @@ namespace Go
                 }
 
                 remainingPlayers = winners;
+	            remainingPlayersNames = winnersNames;
                 score++;
             }
 

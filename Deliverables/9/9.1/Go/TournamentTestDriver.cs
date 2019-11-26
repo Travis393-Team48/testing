@@ -23,11 +23,13 @@ namespace Go
 			
 			if (args.Length != 2)
 			{
-				throw new ArgumentException("Tournament type or number of remote players not specified");
+				tournament_type = Console.ReadLine().Substring(1);
+				_number_of_remote_players = Int32.Parse(Console.ReadLine());
+				//throw new ArgumentException("Tournament type or number of remote players not specified");
 			}
 			else
 			{
-				tournament_type = args[0];
+				tournament_type = args[0].Substring(1);
 				_number_of_remote_players = Int32.Parse(args[1]);
 			}
 
@@ -52,7 +54,7 @@ namespace Go
 
 			foreach (string s in printRankings)
 			{
-				Console.WriteLine(JsonConvert.SerializeObject(printRankings));
+				Console.WriteLine(s);
 			}	
 		}
 	}
