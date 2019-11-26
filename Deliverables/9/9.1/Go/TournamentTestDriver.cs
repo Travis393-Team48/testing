@@ -34,7 +34,7 @@ namespace Go
 			
 			if (args.Length != 2)
 			{
-				tournament_type = Console.ReadLine().Substring(1);
+				tournament_type = Console.ReadLine().Substring(args[0].LastIndexOf('-'));
 				_number_of_remote_players = Int32.Parse(Console.ReadLine());
 				//throw new ArgumentException("Tournament type or number of remote players not specified");
 			}
