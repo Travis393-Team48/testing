@@ -40,7 +40,7 @@ namespace Go
 			}
 			else
 			{
-				tournament_type = args[0].Substring(1);
+				tournament_type = args[0].Substring(args[0].LastIndexOf('-'));
 				_number_of_remote_players = Int32.Parse(args[1]);
 			}
 

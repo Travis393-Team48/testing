@@ -123,7 +123,7 @@ namespace Go
 					Console.WriteLine("starting league game");
                     return AdministerRoundRobin(players, player_names, has_cheated, board_size);
                 default:
-                    throw new AdminException("Invalid tournament type in Admin" + tournament_type);
+                    throw new AdminException("Invalid tournament type in Admin: " + tournament_type);
             }
         }
 
