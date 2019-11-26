@@ -29,24 +29,34 @@ namespace Go
             socket.Bind(localEndPoint);
             Admin.Socket = socket;
 
+            Console.WriteLine("Network setup");
+
             string tournament_type;
 			int _number_of_remote_players;
 			
-			if (args.Length != 2)
+			if (args.Length == 2)
+			{
+                tournament_type = args[0].Substring(args[0].LastIndexOf('-') + 1);
+                _number_of_remote_players = Int32.Parse(args[1]);
+			}
+			else if (args.Length == 0)
 			{
                 string t = Console.ReadLine();
-				tournament_type = t.Substring(t.LastIndexOf('-') + 1);
-				_number_of_remote_players = Int32.Parse(Console.ReadLine());
-				//throw new ArgumentException("Tournament type or number of remote players not specified");
-			}
-			else
-			{
-				tournament_type = args[0].Substring(args[0].LastIndexOf('-') + 1);
-				_number_of_remote_players = Int32.Parse(args[1]);
-			}
+                tournament_type = t.Substring(t.LastIndexOf('-') + 1);
+                _number_of_remote_players = Int32.Parse(Console.ReadLine());
+            }
+            else
+            {
+                throw new ArgumentException("Tournament type or number of remote players not specified");
+            }
 
-			List<Admin.PlayerRanking> finalRankings = Admin.AdministerTournament(tournament_type, _number_of_remote_players, port, path, 9);
-			List<string> printRankings = new List<string>();
+            Console.WriteLine("Tournament type determined");
+
+            List<Admin.PlayerRanking> finalRankings = Admin.AdministerTournament(tournament_type, _number_of_remote_players, port, path, 9);
+
+            Console.WriteLine("Games Finished");
+
+            List<string> printRankings = new List<string>();
 			printRankings.Add("=========== Final Rankings =============");
 			int currRank = 0;
 			for (int i= 0; i < finalRankings.Count; i++)
