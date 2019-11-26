@@ -132,7 +132,7 @@ namespace PlayerSpace
             }
 
             // Close Socket using the method Close() 
-            sender.Shutdown(SocketShutdown.Both);
+            //sender.Shutdown(SocketShutdown.Both);
             sender.Close();
         }
 

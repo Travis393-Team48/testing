@@ -444,6 +444,7 @@ namespace Go
                 score++;
             }
 
+	        score++;
             rankings.Add(new PlayerRanking(remainingPlayersNames[0], score));
 
             rankings.Sort(SortPlayerRankings);
