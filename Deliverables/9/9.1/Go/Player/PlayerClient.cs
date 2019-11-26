@@ -115,7 +115,7 @@ namespace PlayerSpace
                             sender.Send(messageSent);
                             break;
                         default:
-                            sender.Shutdown(SocketShutdown.Both);
+                            //sender.Shutdown(SocketShutdown.Both);
                             sender.Close();
                             throw new PlayerClientException("Invalid operation sent to PlayerClient");
                     }
@@ -125,7 +125,7 @@ namespace PlayerSpace
             catch (Exception)
             {
                 //Console.WriteLine(e.Message, this);
-                sender.Shutdown(SocketShutdown.Both);
+                //sender.Shutdown(SocketShutdown.Both);
                 sender.Close();
                 //Console.ReadLine();
                 throw;
