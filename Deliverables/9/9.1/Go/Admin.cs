@@ -15,6 +15,8 @@ namespace Go
      */
     public static class Admin
     {
+        public static Socket Socket;
+
         /* Given two UNREGISTERED players and the size of the game board, administers a game between the two players using referee
          * Returns a sorted list of strings containing the victor(s)
          * if a player is a remote player, the name given in function for that player doesn't matter
@@ -69,7 +71,7 @@ namespace Go
 
             for (int i = 0; i < _number_of_remote_players; i++)
             {
-                players.Add(new PlayerWrapper(port, true));
+                players.Add(new PlayerWrapper(Socket, true));
             }
 
             if (Math.Log(_number_of_remote_players, 2) != 0)
@@ -121,7 +123,7 @@ namespace Go
 					Console.WriteLine("starting league game");
                     return AdministerRoundRobin(players, player_names, has_cheated, board_size);
                 default:
-                    throw new AdminException("Invalid tournament type in Admin");
+                    throw new AdminException("Invalid tournament type in Admin: " + tournament_type);
             }
         }
 

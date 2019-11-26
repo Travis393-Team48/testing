@@ -4,6 +4,8 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CustomExceptions;
+using System.Net;
+using System.Net.Sockets;
 
 namespace PlayerSpace
 {
@@ -27,16 +29,20 @@ namespace PlayerSpace
             JObject depth = JsonConvert.DeserializeObject<JObject>(go_player);
 
 
+            //Network setup
+            IPAddress ipAddr = IPAddress.Parse(ipPort["IP"].ToObject<string>());
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, ipPort["port"].ToObject<int>());
 
-            //Create raw remote player
-            //string path = ipPort["default-player"].ToObject<string>();
-            //Process.Start(Path.Combine(Environment.CurrentDirectory, path));
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(localEndPoint);
+
 
             //Create remote player
             PlayerClient client = new PlayerClient(ipPort["IP"].ToObject<string>(),
                 ipPort["port"].ToObject<int>(), "less dumb", 1, "no name");
 
-            PlayerAdapter aiPlayer = new PlayerAdapter(ipPort["port"].ToObject<int>());
+            PlayerAdapter aiPlayer = new PlayerAdapter(socket);
 
             //Parse console input while testing
             JsonTextReader reader = new JsonTextReader(new StringReader(console));

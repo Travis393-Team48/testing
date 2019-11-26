@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Net;
+using System.Net.Sockets;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,6 +31,15 @@ namespace UnitTests
                 "disconnect on make a move"
             };
 
+            //Network setup
+            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
+
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(localEndPoint);
+            Admin.Socket = socket;
+
             foreach (string config in configs)
             {
                 try
@@ -36,7 +47,7 @@ namespace UnitTests
                     PlayerClientIllegal client = new PlayerClientIllegal("localhost", port, "illegal", config);
                 }
                 catch (PlayerClientException) { };
-                PlayerWrapper player1 = new PlayerWrapper(port);
+                PlayerWrapper player1 = new PlayerWrapper(socket);
                 PlayerWrapper player2 = new PlayerWrapper("less dumb");
                 List<string> victors = Admin.AdministerSingleGame(player1, "remote player", player2, "local player", 9);
 
@@ -59,10 +70,19 @@ namespace UnitTests
                 "send json array on make a move",
             };
 
+            //Network setup
+            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
+
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(localEndPoint);
+            Admin.Socket = socket;
+
             foreach (string config in configs)
             {
                 PlayerClientIllegal client = new PlayerClientIllegal("localhost", port, "illegal", config);
-                PlayerWrapper player1 = new PlayerWrapper(port);
+                PlayerWrapper player1 = new PlayerWrapper(socket);
                 PlayerWrapper player2 = new PlayerWrapper("less dumb");
                 List<string> victors = Admin.AdministerSingleGame(player1, "remote player", player2, "local player", 9);
 
@@ -90,10 +110,19 @@ namespace UnitTests
 				"return empty",
             };
 
+            //Network setup
+            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
+
+            // Creation TCP/IP Socket using Socket Class Costructor 
+            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(localEndPoint);
+            Admin.Socket = socket;
+
             foreach (string config in configs)
             {
                 PlayerClientIllegal client = new PlayerClientIllegal("localhost", port, "illegal", config);
-                PlayerWrapper player1 = new PlayerWrapper(port);
+                PlayerWrapper player1 = new PlayerWrapper(socket);
                 PlayerWrapper player2 = new PlayerWrapper("less dumb");
                 List<string> victors = Admin.AdministerSingleGame(player1, "remote player", player2, "local player", 9);
 
