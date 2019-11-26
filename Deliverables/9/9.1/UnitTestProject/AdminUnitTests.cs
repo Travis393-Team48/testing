@@ -133,5 +133,42 @@ namespace UnitTests
                 port++;
             }
         }
+
+        [TestMethod]
+        public void RankingSimulator()
+        {
+            List<Admin.PlayerRanking> finalRankings = new List<Admin.PlayerRanking>();
+            finalRankings.Add(new Admin.PlayerRanking("name", 20));
+            finalRankings.Add(new Admin.PlayerRanking("name", 9));
+            finalRankings.Add(new Admin.PlayerRanking("name", 9));
+            finalRankings.Add(new Admin.PlayerRanking("name", 8));
+            finalRankings.Add(new Admin.PlayerRanking("name", 8));
+            finalRankings.Add(new Admin.PlayerRanking("name", 0));
+            finalRankings.Add(new Admin.PlayerRanking("name", 0));
+            finalRankings.Add(new Admin.PlayerRanking("name", 0));
+            finalRankings.Add(new Admin.PlayerRanking("name", 0));
+            finalRankings.Add(new Admin.PlayerRanking("name", 0));
+            Rank(finalRankings);
+        }
+
+        private List<string> Rank(List<Admin.PlayerRanking> finalRankings)
+        {
+            int currRank = 0;
+            List<string> printRankings = new List<string>();
+            for (int i = 0; i < finalRankings.Count; i++)
+            {
+                if (i != 0 && finalRankings[i].score == finalRankings[i - 1].score)
+                {
+                    printRankings[printRankings.Count - 1] = printRankings[printRankings.Count - 1] + ", " + finalRankings[i].name;
+                }
+                else
+                {
+                    printRankings.Add((i + 1).ToString() + ": " + finalRankings[i].name);
+                    currRank = i + 1;
+                }
+            }
+
+            return printRankings;
+        }
     }
 }

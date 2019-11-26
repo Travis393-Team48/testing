@@ -59,20 +59,20 @@ namespace Go
             List<string> printRankings = new List<string>();
 			printRankings.Add("=========== Final Rankings =============");
 			int currRank = 0;
-			for (int i= 0; i < finalRankings.Count; i++)
-			{
-				if (i != 0 && finalRankings[i].score == finalRankings[i - 1].score)
-				{
-					printRankings[currRank] = printRankings[currRank] + ", " + finalRankings[i].name;
-				}
-				else
-				{
-					printRankings.Add((i+1).ToString() + ": " + finalRankings[i].name);
-					currRank = i + 1;
-				}
-			}
+            for (int i = 0; i < finalRankings.Count; i++)
+            {
+                if (i != 0 && finalRankings[i].score == finalRankings[i - 1].score)
+                {
+                    printRankings[printRankings.Count - 1] = printRankings[printRankings.Count - 1] + ", " + finalRankings[i].name;
+                }
+                else
+                {
+                    printRankings.Add((i + 1).ToString() + ": " + finalRankings[i].name);
+                    currRank = i + 1;
+                }
+            }
 
-			printRankings.Add("========================================");
+            printRankings.Add("========================================");
 
 			foreach (string s in printRankings)
 			{
