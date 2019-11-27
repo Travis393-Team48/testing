@@ -21,7 +21,7 @@ namespace UnitTests
         [TestMethod]
         public void ClientDisconnectTests()
         {
-            int port = 8180;
+            int port = 8080;
             List<string> configs = new List<string>()
             {
                 "disconnect on connect B",
@@ -55,17 +55,16 @@ namespace UnitTests
                 if (victors.Count == 1)
                     Assert.AreEqual(victors[0], "local player");
 
-                port++;
+                //port++;
             }
 
-            socket.Shutdown(SocketShutdown.Both);
             socket.Close();
         }
 
         [TestMethod]
         public void ClientInvalidJsonTests()
         {
-            int port = 8280;
+            int port = 8080;
             List<string> configs = new List<string>()
             {
                 "send json object on make a move",
@@ -93,17 +92,16 @@ namespace UnitTests
                 if (victors.Count == 1)
                     Assert.AreEqual(victors[0], "local player");
 
-                port++;
+                //port++;
             }
 
-            socket.Shutdown(SocketShutdown.Both);
             socket.Close();
         }
 
         [TestMethod]
         public void PlayerIllegalMovesTests()
         {
-            int port = 8380;
+            int port = 8080;
             List<string> configs = new List<string>()
             {
                 "always return 1-1",
@@ -136,10 +134,9 @@ namespace UnitTests
                 if (victors.Count == 1)
                     Assert.AreEqual(victors[0], "local player");
 
-                port++;
+                //port++;
             }
 
-            socket.Shutdown(SocketShutdown.Both);
             socket.Close();
         }
 

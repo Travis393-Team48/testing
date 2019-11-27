@@ -49,9 +49,6 @@ namespace Go
             Console.WriteLine(JsonConvert.SerializeObject(victors.ToArray()));
 
             //Console.ReadLine();
-
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
         }
     }
 }
