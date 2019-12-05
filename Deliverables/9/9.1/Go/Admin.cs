@@ -98,14 +98,17 @@ namespace Go
             {
                 try
                 {
+	                Console.WriteLine("Trying to register player " + playerNumber);
                     player_names.Add(player.Register("player" + playerNumber));
 					has_cheated.Add(false);
                     playerNumber++;
+	                Console.WriteLine("Sucessfully registered player " + playerNumber - 1);
                 }
                 catch (Exception e)
                 {
                     if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
+	                    Console.WriteLine("Unsuccessful registration of player " + playerNumber);
                         players[playerNumber] = new PlayerWrapper("smart", depth, true);                        
 						has_cheated.Add(true);
                     }
@@ -173,17 +176,21 @@ namespace Go
                     referee = new RefereeWrapper(players[i], players[j], board_size);
                     victors = referee.RefereeGame(player_names[i], player_names[j], out has_cheater);
 
+	                Console.WriteLine("Match between " + player_names[i] + " and " + player_names[j] + " is beginning");
+
                     if (has_cheater)
                     {
                         int cheater = victors[0] == player_names[i] ? j : i;
                         has_cheated[cheater] = true;
+	                    Console.WriteLine(player_names[cheater] + " has cheated");
 
                         //replace with default player
                         cheaters.Add(player_names[cheater]);
                         //technically incorrect default-player
                         players[cheater] = new PlayerWrapper("smart", 1, true);
                         player_names[cheater] = players[cheater].Register("replacement player" + cheater.ToString());
-                        
+	                    Console.WriteLine("Adding new player: replacement player" + cheater.ToString());
+												
                         //modify scores
                         for (int c = 0; c < players.Count; c++)
                         {
@@ -201,9 +208,13 @@ namespace Go
                         {
                             Random rng = new Random();
                             victor = victors[rng.Next(0, 2)];
+	                        Console.WriteLine("There was as tie! " + victor + " was chosen as the winner");
                         }
                         else if (victors.Count == 1)
-                            victor = victors[0];
+                        {
+	                        victor = victors[0];
+	                        Console.WriteLine(victor + " is the winner of this match");
+                        }                       
                         else
                             throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
 
@@ -334,14 +345,19 @@ namespace Go
 
                     RefereeWrapper referee = new RefereeWrapper(player1, player2, board_size);
                     List<string> victors = referee.RefereeGame(player1Name, player2Name, out bool has_cheater);
+	                Console.WriteLine("Match between " + player1Name + " and " + player2Name + " is beginning");
 
                     if (victors.Count == 2)
                     {
                         Random rng = new Random();
                         victor = victors[rng.Next(0, 2)];
-                    }
+	                    Console.WriteLine("There was a tie! " + victor + " was chosen as the winner");
+;                    }
                     else if (victors.Count == 1)
-                        victor = victors[0];
+                    {
+	                    victor = victors[0];
+	                    Console.WriteLine(victor + " is the winner of this match");
+                    }                      
                     else
                         throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
 
@@ -364,14 +380,18 @@ namespace Go
                                 PlayerWrapper replacement = new PlayerWrapper("smart", 1, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
+	                            Console.WriteLine("Adding replacement player" + replacementCount.ToString());
                                 replacementCount++;
                             }
                             else
                                 throw;
                         }
 
-                        if (has_cheater)
-                            rankings.Add(new PlayerRanking(player2Name, 0));
+	                    if (has_cheater)
+	                    {
+		                    rankings.Add(new PlayerRanking(player2Name, 0));
+							Console.WriteLine(player2Name + " has cheated")
+	                    }               
                         else
                         {
                             try
@@ -409,14 +429,18 @@ namespace Go
                                 PlayerWrapper replacement = new PlayerWrapper("smart", 1, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
+	                            Console.WriteLine("Adding replacement player" + replacementCount.ToString());
                                 replacementCount++;
                             }
                             else
                                 throw;
                         }
 
-                        if (has_cheater)
-                            rankings.Add(new PlayerRanking(player1Name, 0));
+	                    if (has_cheater)
+	                    {
+		                    rankings.Add(new PlayerRanking(player1Name, 0));
+		                    Console.WriteLine(player1Name + " has cheated");
+	                    }                         
                         else
                         {
                             try
@@ -444,7 +468,6 @@ namespace Go
                 score++;
             }
 
-	        //score++;
             rankings.Add(new PlayerRanking(remainingPlayersNames[0], score));
 
             rankings.Sort(SortPlayerRankings);
