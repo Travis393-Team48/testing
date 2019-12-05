@@ -182,16 +182,18 @@ namespace Go
                     if (matches[i][j] != -1)
                         continue;
 
-                    referee = new RefereeWrapper(players[i], players[j], board_size);
+	                Console.WriteLine("Match between " + player_names[i] + " and " + player_names[j] + " is beginning");
+					referee = new RefereeWrapper(players[i], players[j], board_size);
                     victors = referee.RefereeGame(player_names[i], player_names[j], out has_cheater);
 
-	                Console.WriteLine("Match between " + player_names[i] + " and " + player_names[j] + " is beginning");
 
                     if (has_cheater)
                     {
                         int cheater = victors[0] == player_names[i] ? j : i;
                         has_cheated[cheater] = true;
 	                    Console.WriteLine(player_names[cheater] + " has cheated");
+						Console.WriteLine(player_names[cheater == i ? j : i] + " is the winner of this match");
+						Console.WriteLine("==========================================");
 
                         //replace with default player
                         cheaters.Add(player_names[cheater]);
@@ -218,6 +220,7 @@ namespace Go
                             Random rng = new Random();
                             victor = victors[rng.Next(0, 2)];
 	                        Console.WriteLine("There was as tie! " + victor + " was chosen as the winner");
+	                        Console.WriteLine("=========================================");
                         }
                         else if (victors.Count == 1)
                         {
@@ -239,8 +242,10 @@ namespace Go
                         if (!has_cheated[i])
                         {
                             string end = players[i].EndGame();
+							Console.Write("Sending End Game to " + player_names[i]);
                             if (end != "OK")
                                 throw new WrapperException("invalid endgame message");
+							Console.WriteLine(" Successfully ended game");
                         }
                     }
                     catch (Exception e)
@@ -251,11 +256,12 @@ namespace Go
 
                             cheaters.Add(player_names[i]);
                             //technically incorrect default-player
-                            players[i] = new PlayerWrapper(aiType, 1, true);
+                            players[i] = new PlayerWrapper(aiType, 1, true);							
                             player_names[i] = players[i].Register("replacement player" + i.ToString());
+	                        Console.WriteLine("Replaced with replacement player" + i.ToString());
 
-                            //modify scores
-                            for (int c = 0; c < players.Count; c++)
+							//modify scores
+							for (int c = 0; c < players.Count; c++)
                             {
                                 if (matches[i][c] == i)
                                 {
@@ -274,9 +280,11 @@ namespace Go
                         if (!has_cheated[i])
                         {
                             string end = players[j].EndGame();
-                            if (end != "OK")
-                                throw new WrapperException("invalid endgame message");
-                        }
+							Console.Write("Sending End Game to " + player_names[j]);
+	                        if (end != "OK")
+		                        throw new WrapperException("invalid endgame message");
+	                        Console.WriteLine(" Successfully ended game");
+						}
                     }
                     catch (Exception e)
                     {
@@ -288,9 +296,10 @@ namespace Go
                             //technically incorrect default-player
                             players[j] = new PlayerWrapper(aiType, 1, true);
                             player_names[j] = players[j].Register("replacement player" + j.ToString());
+	                        Console.WriteLine("Replaced with replacement player" + j.ToString());
 
-                            //modify scores
-                            for (int c = 0; c < players.Count; c++)
+							//modify scores
+							for (int c = 0; c < players.Count; c++)
                             {
                                 if (matches[j][c] == j)
                                 {
@@ -404,7 +413,7 @@ namespace Go
 	                    {
 		                    rankings.Add(new PlayerRanking(player2Name, 0));
 		                    Console.WriteLine(player2Name + " has cheated");
-	                    }               
+						}               
                         else
                         {
                             try
