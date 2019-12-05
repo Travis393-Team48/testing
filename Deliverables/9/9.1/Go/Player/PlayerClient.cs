@@ -24,7 +24,7 @@ namespace PlayerSpace
 
         public PlayerClient(string ip, int port, string aiType, int n = 1, string name = "my player client")
         {
-            _player = new PlayerWrapper(aiType, n);
+            _player = new PlayerWrapper(aiType, n, true);
             _name = name;
 
             if (ip == "localhost")

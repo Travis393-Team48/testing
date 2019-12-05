@@ -74,6 +74,7 @@ namespace Go
             for (int i = 0; i < _number_of_remote_players; i++)
             {
                 players.Add(new PlayerWrapper(Socket, true));
+				Console.WriteLine("Successfully connected player" + i);
             }
 
             if (Math.Log(_number_of_remote_players, 2) != 0)
@@ -105,10 +106,10 @@ namespace Go
             {
                 try
                 {
-	                Console.WriteLine("Trying to register player " + playerNumber);
+	                Console.WriteLine("Trying to register player" + playerNumber);
                     player_names.Add(player.Register("default player" + playerNumber));
 					has_cheated.Add(false);
-	                Console.WriteLine("Sucessfully registered player " + playerNumber);
+	                Console.WriteLine("Sucessfully registered player: " + player_names[playerNumber]);
                     playerNumber++;       
                 }
                 catch (Exception e)
