@@ -60,12 +60,14 @@ namespace Go
             return victors;
         }
 
-        public static List<PlayerRanking> AdministerTournament(string tournament_type, int _number_of_remote_players, int port, string path, int board_size = 9)
+        public static List<PlayerRanking> AdministerTournament(string tournament_type, int _number_of_remote_players, 
+            int port, string path, int board_size = 9)
         {
             //locals and initialization
             string goPlayer = File.ReadAllText(path);
             JObject playerJObject = JsonConvert.DeserializeObject<JObject>(goPlayer);
             int depth = playerJObject["depth"].ToObject<int>();
+            string aiType = playerJObject["aiType"].ToObject<string>();
 
             List<PlayerWrapper> players = new List<PlayerWrapper>();
 
@@ -80,12 +82,17 @@ namespace Go
 
                 for (int i = 0; i < additional_players; i++)
                 {
-                    players.Add(new PlayerWrapper("smart", depth, true));
+                    players.Add(new PlayerWrapper(aiType, depth, true));
                 }
             }
             else if (_number_of_remote_players == 1)
             {
-				players.Add(new PlayerWrapper("smart", depth, true));
+				players.Add(new PlayerWrapper(aiType, depth, true));
+            }
+            else if (_number_of_remote_players < 1)
+            {
+                players.Add(new PlayerWrapper(aiType, depth, true));
+                players.Add(new PlayerWrapper(aiType, depth, true));
             }
 
             //reset these lists
@@ -109,7 +116,7 @@ namespace Go
                     if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
 	                    Console.WriteLine("Unsuccessful registration of player " + playerNumber);
-                        players[playerNumber] = new PlayerWrapper("smart", depth, true);                        
+                        players[playerNumber] = new PlayerWrapper(aiType, depth, true);                        
 						has_cheated.Add(true);
                     }
                     else
@@ -121,10 +128,10 @@ namespace Go
             {
                 case "cup":
 					Console.WriteLine("start cup game");
-                    return AdministerSingleElimination(players, player_names, has_cheated, board_size);
+                    return AdministerSingleElimination(players, player_names, has_cheated, board_size, aiType, depth);
                 case "league":
 					Console.WriteLine("starting league game");
-                    return AdministerRoundRobin(players, player_names, has_cheated, board_size);
+                    return AdministerRoundRobin(players, player_names, has_cheated, board_size, aiType, depth);
                 default:
                     throw new AdminException("Invalid tournament type in Admin: " + tournament_type);
             }
@@ -134,7 +141,8 @@ namespace Go
          * Administers a round robin tournament
          * Returns a sorted list of player rankings
          */
-        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
+        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, 
+            int board_size, string aiType, int depth)
         {
             List<string> cheaters = new List<string>();
 
@@ -144,7 +152,7 @@ namespace Go
                 {
                     cheaters.Add(player_names[i]);
                     //technically incorrect default-player
-                    players[i] = new PlayerWrapper("smart", 1, true);
+                    players[i] = new PlayerWrapper(aiType, 1, true);
                     player_names[i] = players[i].Register("replacement player" + i.ToString());
                 }
             }
@@ -187,7 +195,7 @@ namespace Go
                         //replace with default player
                         cheaters.Add(player_names[cheater]);
                         //technically incorrect default-player
-                        players[cheater] = new PlayerWrapper("smart", 1, true);
+                        players[cheater] = new PlayerWrapper(aiType, 1, true);
                         player_names[cheater] = players[cheater].Register("replacement player" + cheater.ToString());
 	                    Console.WriteLine("Adding new player: replacement player" + cheater.ToString());
 												
@@ -242,7 +250,7 @@ namespace Go
 
                             cheaters.Add(player_names[i]);
                             //technically incorrect default-player
-                            players[i] = new PlayerWrapper("smart", 1, true);
+                            players[i] = new PlayerWrapper(aiType, 1, true);
                             player_names[i] = players[i].Register("replacement player" + i.ToString());
 
                             //modify scores
@@ -277,7 +285,7 @@ namespace Go
 
                             cheaters.Add(player_names[j]);
                             //technically incorrect default-player
-                            players[j] = new PlayerWrapper("smart", 1, true);
+                            players[j] = new PlayerWrapper(aiType, 1, true);
                             player_names[j] = players[j].Register("replacement player" + j.ToString());
 
                             //modify scores
@@ -318,7 +326,8 @@ namespace Go
             return player_rankings;
         }
 
-        private static List<PlayerRanking> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, int board_size)
+        private static List<PlayerRanking> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, 
+            int board_size, string aiType, int depth)
         {
             List<PlayerWrapper> remainingPlayers = players;
             List<string> remainingPlayersNames = player_names;
@@ -380,7 +389,7 @@ namespace Go
                             {
                                 rankings.Add(new PlayerRanking(player1Name, 0));
                                 //technically incorrect default-player
-                                PlayerWrapper replacement = new PlayerWrapper("smart", 1, true);
+                                PlayerWrapper replacement = new PlayerWrapper(aiType, 1, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
 	                            Console.WriteLine("Adding replacement player" + replacementCount.ToString());
@@ -429,7 +438,7 @@ namespace Go
                             {
                                 rankings.Add(new PlayerRanking(player2Name, 0));
                                 //technically incorrect default-player
-                                PlayerWrapper replacement = new PlayerWrapper("smart", 1, true);
+                                PlayerWrapper replacement = new PlayerWrapper(aiType, 1, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
 	                            Console.WriteLine("Adding replacement player" + replacementCount.ToString());
