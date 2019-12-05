@@ -181,7 +181,6 @@ namespace PlayerSpace
                 //Console.WriteLine(e.Message, this);
                 //sender.Shutdown(SocketShutdown.Both);
                 sender.Close();
-                //Console.ReadLine();
                 throw;
             }
 

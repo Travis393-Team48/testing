@@ -23,7 +23,9 @@ namespace Go
 
 
             //Network setup
-            IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
+            if (ip == "localhost")
+                ip = "127.0.0.1";
+            IPAddress ipAddr = IPAddress.Parse(ip);
             IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
 
             // Creation TCP/IP Socket using Socket Class Costructor 

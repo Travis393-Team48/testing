@@ -18,8 +18,9 @@ namespace UnitTests
     public class PlayerProxyUnitTests
     {
         #region Peer Tests
+        Socket _socket;
         private List<string> _test_files = new List<string>();
-        int _port = 8080;
+        int _port = 8081;
         
         [TestMethod]
         //Test all files found in TestFiles/7.1 in the build folder
@@ -39,6 +40,8 @@ namespace UnitTests
             for (int i = 0; i < inputs.Count; i++)
                 JToken.Parse(TestJson(inputs[i])).Should().BeEquivalentTo(
                     JToken.Parse(ExtractJson(outputs[i])));
+
+            _socket.Close();
         }
 
         //Helper function for peer tests
@@ -81,12 +84,12 @@ namespace UnitTests
             IPEndPoint localEndPoint = new IPEndPoint(ipAddr, _port);
 
             // Creation TCP/IP Socket using Socket Class Costructor 
-            Socket socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            socket.Bind(localEndPoint);
+            _socket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _socket.Bind(localEndPoint);
 
             PlayerClient client = new PlayerClient("localhost", _port, "less dumb", 1, "no name");
 
-            PlayerAdapter aiPlayer = new PlayerAdapter(socket);
+            PlayerAdapter aiPlayer = new PlayerAdapter(_socket);
 
             _port++;
 
