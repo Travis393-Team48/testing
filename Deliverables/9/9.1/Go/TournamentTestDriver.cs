@@ -82,7 +82,7 @@ namespace Go
 				Console.WriteLine(s);
 			}
 
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 	}
 }

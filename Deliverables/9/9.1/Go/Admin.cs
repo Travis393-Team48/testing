@@ -69,70 +69,59 @@ namespace Go
             int depth = playerJObject["depth"].ToObject<int>();
             string aiType = playerJObject["aiType"].ToObject<string>();
 
-            List<PlayerWrapper> players = new List<PlayerWrapper>();
-
+            List<PlayerStruct> players = new List<PlayerStruct>();
             for (int i = 0; i < _number_of_remote_players; i++)
             {
-                players.Add(new PlayerWrapper(Socket, true));
-				Console.WriteLine("Successfully connected player" + i);
+                try
+                {
+                    PlayerWrapper player = new PlayerWrapper(Socket, true);
+                    Console.WriteLine("Successfully connected player" + i);
+
+                    Console.Write("Trying to register player" + i + ": ");
+                    string player_name = player.Register("default player" + i);
+                    Console.WriteLine("Sucessfully registered player: " + player_name);
+
+                    players.Add(new PlayerStruct(player, player_name));
+                }
+                catch (Exception e)
+                {
+                    if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                    {
+                        Console.WriteLine("Unsuccessful registration of player " + i);
+                        players[i].Disqualify();
+                    }
+                }
             }
 
             if (Math.Log(_number_of_remote_players, 2) != 0)
             {
                 double additional_players = Math.Pow(2, Math.Ceiling(Math.Log(_number_of_remote_players, 2))) - _number_of_remote_players;
 
+                int player_num = players.Count;
                 for (int i = 0; i < additional_players; i++)
                 {
-                    players.Add(new PlayerWrapper(aiType, depth, true));
+                    players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + player_num));
+                    player_num++;
                 }
             }
             else if (_number_of_remote_players == 1)
             {
-				players.Add(new PlayerWrapper(aiType, depth, true));
+                players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + 1));
             }
             else if (_number_of_remote_players < 1)
             {
-                players.Add(new PlayerWrapper(aiType, depth, true));
-                players.Add(new PlayerWrapper(aiType, depth, true));
-            }
-
-            //reset these lists
-            List<string> player_names = new List<string>();
-            List<bool> has_cheated = new List<bool>();
-
-            //Register players and get their names
-            int playerNumber = 0;
-            foreach (PlayerWrapper player in players)
-            {
-                try
-                {
-	                Console.WriteLine("Trying to register player" + playerNumber);
-                    player_names.Add(player.Register("default player" + playerNumber));
-					has_cheated.Add(false);
-	                Console.WriteLine("Sucessfully registered player: " + player_names[playerNumber]);
-                    playerNumber++;       
-                }
-                catch (Exception e)
-                {
-                    if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
-                    {
-	                    Console.WriteLine("Unsuccessful registration of player " + playerNumber);
-                        players[playerNumber] = new PlayerWrapper(aiType, depth, true);                        
-						has_cheated.Add(true);
-                    }
-                    else
-                        throw;
-                }
+                players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + 0));
+                players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + 1));
             }
 
             switch (tournament_type)
             {
                 case "cup":
 					Console.WriteLine("start cup game");
-                    return AdministerSingleElimination(players, player_names, has_cheated, board_size, aiType, depth);
+                    return AdministerSingleElimination(players, board_size, aiType, depth);
                 case "league":
 					Console.WriteLine("starting league game");
-                    return AdministerRoundRobin(players, player_names, has_cheated, board_size, aiType, depth);
+                    return AdministerRoundRobin(players, board_size, aiType, depth);
                 default:
                     throw new AdminException("Invalid tournament type in Admin: " + tournament_type);
             }
@@ -142,31 +131,18 @@ namespace Go
          * Administers a round robin tournament
          * Returns a sorted list of player rankings
          */
-        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, 
-            int board_size, string aiType, int depth)
+        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerStruct> players, int board_size, string aiType, int depth)
         {
             List<string> cheaters = new List<string>();
 
             //Start by replacing players who failed to register/receive-stones with default-players
             for (int i = 0; i < players.Count; i++)
             {
-                if (has_cheated[i])
+                if (players[i].hasCheated)
                 {
-                    Console.WriteLine("Replacing " + player_names[i] + " with replacement player" + i.ToString());
-                    cheaters.Add(player_names[i]);
-                    players[i] = new PlayerWrapper(aiType, depth, true);
-                    player_names[i] = players[i].Register("replacement player" + i.ToString());
-                }
-            }
-
-            //First create match matrix (2d array of -1)
-            int[][] matches = new int[players.Count][];
-            for (int i = 0; i < players.Count; i++)
-            {
-                matches[i] = new int[players.Count];
-                for (int j = 0; j < players.Count; j++)
-                {
-                    matches[i][j] = -1;
+                    Console.WriteLine("Replacing " + players[i].name + " with replacement player" + players.Count);
+                    cheaters.Add(players[i].name);
+                    players[i] = (CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count));
                 }
             }
 
@@ -177,143 +153,79 @@ namespace Go
             bool has_cheater;
             for (int i = 0; i < players.Count; i++)
             {
-                for (int j = 0; j < players.Count; j++)
+                for (int j = i + 1; j < players.Count; j++)
                 {
-                    if (i == j)
-                        continue;
-                    if (matches[i][j] != -1)
-                        continue;
+	                Console.WriteLine("Match between " + players[i].name + " and " + players[j].name + " is beginning");
+					referee = new RefereeWrapper(players[i].playerObject , players[j].playerObject, board_size);
+                    victors = referee.RefereeGame(players[i].name, players[j].name, out has_cheater);
 
-	                Console.WriteLine("Match between " + player_names[i] + " and " + player_names[j] + " is beginning");
-					referee = new RefereeWrapper(players[i], players[j], board_size);
-                    victors = referee.RefereeGame(player_names[i], player_names[j], out has_cheater);
+                    //If draw, set victor to random player
+                    if (victors.Count == 2)
+                    {
+                        Random rng = new Random();
+                        victor = victors[rng.Next(0, 2)];
+                        Console.WriteLine("There was as tie! " + victor + " was chosen as the winner");
+                    }
+                    else
+                        victor = victors[0];
+
+                    Console.WriteLine(victor + " is the winner of this match");
+
+                    //Update matches
+                    int winner = victor == players[i].name ? i : j;
+                    int loser = winner == i ? j : i;
+                    players[winner].IncrementScore();
+                    players[winner].AddToWonAgainst(players[loser]);
 
                     if (has_cheater)
                     {
-                        int cheater = victors[0] == player_names[i] ? j : i;
-                        has_cheated[cheater] = true;
-	                    Console.WriteLine(player_names[cheater] + " has cheated");
-						Console.WriteLine(player_names[cheater == i ? j : i] + " is the winner of this match");
-						Console.WriteLine("==========================================");
+                        //Disqualify cheater
+                        int cheater = victors[0] == players[i].name ? j : i;
+                        players[cheater].Disqualify();
+                        Console.WriteLine(players[cheater].name + " cheated");
 
-                        //replace with default player
-                        cheaters.Add(player_names[cheater]);
-                        //technically incorrect default-player
-                        players[cheater] = new PlayerWrapper(aiType, 1, true);
-                        player_names[cheater] = players[cheater].Register("replacement player" + cheater.ToString());
-	                    Console.WriteLine("Adding new player: replacement player" + cheater.ToString());
-												
-                        //modify scores
-                        for (int c = 0; c < players.Count; c++)
-                        {
-                            if (matches[cheater][c] == cheater)
-                            {
-                                matches[cheater][c] = c;
-                                matches[c][cheater] = c;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //If draw, return random player
-                        if (victors.Count == 2)
-                        {
-                            Random rng = new Random();
-                            victor = victors[rng.Next(0, 2)];
-	                        Console.WriteLine("There was as tie! " + victor + " was chosen as the winner");
-	                        Console.WriteLine("=========================================");
-                        }
-                        else if (victors.Count == 1)
-                        {
-	                        victor = victors[0];
-	                        Console.WriteLine(victor + " is the winner of this match");
-							Console.WriteLine("==========================================");
-                        }                       
-                        else
-                            throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
-
-                        //Update matches
-                        matches[i][j] = matches[j][i] = victor == player_names[i] ? i : j;
+                        //Add to cheaters list and replace
+                        cheaters.Add(players[cheater].name);
+                        players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+                        Console.WriteLine("Adding new player: replacement player " + cheater.ToString());
                     }
 
-                    #region End Game
-                    try
+                    //call end game for all players (that didn't cheat)
+                    List<PlayerStruct> ls = new List<PlayerStruct>();
+                    ls.Add(players[winner]);
+                    if (!has_cheater)
+                        ls.Add(players[loser]);
+                    foreach (PlayerStruct player in ls)
                     {
-                        //assuming default players won't cheat
-                        if (!has_cheated[i])
+                        try
                         {
-                            Console.Write("Sending End Game to " + player_names[i] + ": ");
-                            string end = players[i].EndGame();
+                            Console.Write("Sending End Game to " + player.name + ": ");
+                            string end = player.playerObject.EndGame();
                             if (end != "OK")
                                 throw new WrapperException("invalid endgame message");
-							Console.WriteLine("Successfully ended game");
+                            Console.WriteLine("Successfully ended game");
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                        catch (Exception e)
                         {
-                            Console.Write("FAILED, ");
-                            has_cheated[i] = true;
-
-                            cheaters.Add(player_names[i]);
-                            players[i] = new PlayerWrapper(aiType, depth, true);							
-                            player_names[i] = players[i].Register("replacement player" + i.ToString());
-	                        Console.WriteLine("Replaced with replacement player" + i.ToString());
-
-							//modify scores
-							for (int c = 0; c < players.Count; c++)
+                            if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                             {
-                                if (matches[i][c] == i)
-                                {
-                                    matches[i][c] = c;
-                                    matches[c][i] = c;
-                                }
+                                Console.Write("FAILED, ");
+
+                                player.Disqualify();
+                                cheaters.Add(player.name);
+                                if (players[winner].name == player.name)
+                                    players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+                                else
+                                    players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+
+                                Console.WriteLine("Replaced with replacement player" + players.Count);
                             }
+                            else
+                                throw;
                         }
-                        else
-                            throw;
                     }
 
-                    try
-                    {
-                        //assuming default players won't cheat
-                        if (!has_cheated[i])
-                        {
-                            Console.Write("Sending End Game to " + player_names[i] + ": ");
-                            string end = players[j].EndGame();
-	                        if (end != "OK")
-		                        throw new WrapperException("invalid endgame message");
-	                        Console.WriteLine("Successfully ended game");
-						}
-                    }
-                    catch (Exception e)
-                    {
-                        if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
-                        {
-                            Console.Write("FAILED, ");
-                            has_cheated[j] = true;
-
-                            cheaters.Add(player_names[j]);
-                            //technically incorrect default-player
-                            players[j] = new PlayerWrapper(aiType, 1, true);
-                            player_names[j] = players[j].Register("replacement player" + j.ToString());
-	                        Console.WriteLine("Replaced with replacement player" + j.ToString());
-
-							//modify scores
-							for (int c = 0; c < players.Count; c++)
-                            {
-                                if (matches[j][c] == j)
-                                {
-                                    matches[j][c] = c;
-                                    matches[c][j] = c;
-                                }
-                            }
-                        }
-                        else
-                            throw;
-                    }
-                    #endregion
+                    Console.WriteLine("==========================================================");
                 }
             }
 
@@ -321,13 +233,7 @@ namespace Go
             List<PlayerRanking> player_rankings = new List<PlayerRanking>();
             for(int i = 0; i < players.Count; i++)
             {
-                int score = 0;
-                for (int j = 0; j < players.Count; j++)
-                {
-                    if (matches[i][j] == i)
-                        score++;
-                }
-                player_rankings.Add(new PlayerRanking(player_names[i], score));
+                player_rankings.Add(new PlayerRanking(players[i].name, players[i].score));
             }
 
             player_rankings.Sort(SortPlayerRankings);
@@ -342,17 +248,14 @@ namespace Go
          * Administers a single elimination tournament
          * Returns a sorted list of player rankings
          */
-        private static List<PlayerRanking> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, 
-            int board_size, string aiType, int depth)
+        private static List<PlayerRanking> AdministerSingleElimination(List<PlayerStruct> players, int board_size, string aiType, int depth)
         {
-            List<PlayerWrapper> remainingPlayers = players;
-            List<string> remainingPlayersNames = player_names;
+            List<PlayerStruct> remainingPlayers = players;
             List<PlayerRanking> rankings = new List<PlayerRanking>();
             int score = 1;
 
             //Create a list of players, play games between them, and remove eliminated players from list
             string victor;
-            int replacementCount = 0;
             while (remainingPlayers.Count != 1)
             {
                 List<PlayerWrapper> winners = new List<PlayerWrapper>();
@@ -360,20 +263,85 @@ namespace Go
                 
                 while(remainingPlayers.Count != 0)
                 {
-                    //Update players/player names
-                    PlayerWrapper player1 = remainingPlayers[0];
-                    PlayerWrapper player2 = remainingPlayers[1];
+                    //Update players
+                    PlayerStruct player1 = remainingPlayers[0];
+                    PlayerStruct player2 = remainingPlayers[1];
                     remainingPlayers.RemoveAt(0);
                     remainingPlayers.RemoveAt(0);
-                    string player1Name = remainingPlayersNames[0];
-                    string player2Name = remainingPlayersNames[1];
-                    remainingPlayersNames.RemoveAt(0);
-                    remainingPlayersNames.RemoveAt(0);
 
-                    RefereeWrapper referee = new RefereeWrapper(player1, player2, board_size);
-	                Console.WriteLine("Match between " + player1Name + " and " + player2Name + " is beginning");
-					List<string> victors = referee.RefereeGame(player1Name, player2Name, out bool has_cheater);
-	                
+                    RefereeWrapper referee = new RefereeWrapper(player1.playerObject, player2.playerObject, board_size);
+	                Console.WriteLine("Match between " + player1.name + " and " + player2.name + " is beginning");
+					List<string> victors = referee.RefereeGame(player1.name, player2.name, out bool has_cheater);
+
+                    //If draw, set victor to random player
+                    if (victors.Count == 2)
+                    {
+                        Random rng = new Random();
+                        victor = victors[rng.Next(0, 2)];
+                        Console.WriteLine("There was as tie! " + victor + " was chosen as the winner");
+                    }
+                    else
+                        victor = victors[0];
+
+                    Console.WriteLine(victor + " is the winner of this match");
+
+                    //Update winner/loser
+                    PlayerStruct winner = victor == player1.name ? player1 : player2;
+                    PlayerStruct loser = victor == player1.name ? player2 : player1;
+                    rankings.Add(new PlayerRanking(loser.name, score));
+
+                    if (has_cheater)
+                    {
+                        //Disqualify cheater
+                        int cheater = victors[0] == players[i].name ? j : i;
+                        players[cheater].Disqualify();
+                        Console.WriteLine(players[cheater].name + " cheated");
+
+                        //Add to cheaters list and replace
+                        cheaters.Add(players[cheater].name);
+                        players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+                        Console.WriteLine("Adding new player: replacement player " + cheater.ToString());
+                    }
+
+                    //call end game for all players (that didn't cheat)
+                    List<PlayerStruct> ls = new List<PlayerStruct>();
+                    ls.Add(players[winner]);
+                    if (!has_cheater)
+                        ls.Add(players[loser]);
+                    foreach (PlayerStruct player in ls)
+                    {
+                        try
+                        {
+                            Console.Write("Sending End Game to " + player.name + ": ");
+                            string end = player.playerObject.EndGame();
+                            if (end != "OK")
+                                throw new WrapperException("invalid endgame message");
+                            Console.WriteLine("Successfully ended game");
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
+                            {
+                                Console.Write("FAILED, ");
+
+                                player.Disqualify();
+                                cheaters.Add(player.name);
+                                if (players[winner].name == player.name)
+                                    players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+                                else
+                                    players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+
+                                Console.WriteLine("Replaced with replacement player" + players.Count);
+                            }
+                            else
+                                throw;
+                        }
+                    }
+
+
+
+
+
 
                     if (victors.Count == 2)
                     {
@@ -506,6 +474,56 @@ namespace Go
 
             rankings.Sort(SortPlayerRankings);
             return rankings;
+        }
+
+        private static PlayerStruct CreateDefaultPlayerStruct(string aiType, int depth, string name)
+        {
+            PlayerWrapper player = new PlayerWrapper(aiType, depth, true);
+            string player_name = player.Register(name);
+            Console.WriteLine("Sucessfully registered default player: " + player_name);
+
+            return new PlayerStruct(player, player_name);
+        }
+
+        public struct PlayerStruct
+        {
+            public PlayerWrapper playerObject { get; private set; }
+            public string name { get; private set; }
+            public int score { get; private set; }
+            public bool hasCheated { get; private set; }
+            private List<PlayerStruct> wonAgainst;
+
+            public PlayerStruct(PlayerWrapper p, string n)
+            {
+                playerObject = p;
+                name = n;
+                score = 0;
+                hasCheated = false;
+                wonAgainst = new List<PlayerStruct>();
+            }
+
+            public void IncrementScore()
+            {
+                if (!hasCheated)
+                    score++;
+            }
+
+            //Reset score, set hasCheated, refund points
+            public void Disqualify()
+            {
+                score = 0;
+                hasCheated = true;
+                foreach (PlayerStruct p in wonAgainst)
+                {
+                    p.IncrementScore();
+                }
+
+            }
+
+            public void AddToWonAgainst(PlayerStruct p)
+            {
+                wonAgainst.Add(p);
+            }
         }
 
         public struct PlayerRanking
