@@ -42,15 +42,19 @@ namespace RefereeSpace
         {
             if (_players_set == 0)
             {
+                Console.Write("Assigning Player 1: ");
                 _current_player = _player1;
                 _players_set++;
                 _player1.ReceiveStones("B");
+                Console.WriteLine("Successful");
                 return "B";
             }
             else if (_players_set == 1)
             {
+                Console.Write("Assigning Player2: ");
                 _players_set++;
                 _player2.ReceiveStones("W");
+                Console.WriteLine("Successful");
                 return "W";
             }
             throw new InvalidOperationException("Invalid call to AssignPlayer in Referee: Cannot assign more than two players");
@@ -155,6 +159,7 @@ namespace RefereeSpace
             {
                 if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                 {
+                    Console.WriteLine("Failed");
                     List<string> victor = new List<string>();
                     victor.Add(name2);
                     has_cheater = true;
@@ -172,6 +177,7 @@ namespace RefereeSpace
             {
                 if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                 {
+                    Console.WriteLine("Failed");
                     List<string> victor = new List<string>();
                     victor.Add(name1);
                     has_cheater = true;
@@ -185,20 +191,27 @@ namespace RefereeSpace
             {
                 try
                 {
+                    Console.Write("Asking player " + _current_player.GetName() + " for a move: ");
                     string next_move = _current_player.MakeAMove(GetBoardHistory());
                     if (next_move == "pass")
-                       Pass();
+                    {
+                        Console.WriteLine("pass");
+                        Pass();
+                    }
                     else
                     {
+                        Console.Write(next_move + ", ");
                         //maybe this function shouldn't be in referee... need to check if this is a valid point b/c no wrappeer
                         ValidationMethods.ValidatePoint(next_move, _size);
                         Play(next_move);
+                        Console.WriteLine("played successfully");
                     }
                     //Don't Update current player!!! already updated in Pass() and Play()
                     //_current_player = _current_player == _player1 ? _player2 : _player1;
                 }
                 catch (RefereeException)
                 {
+                    Console.WriteLine("GAME ENDED");
                     List<PlayerWrapper> victors = GetVictors();
                     List<string> names = new List<string>();
                     foreach (PlayerWrapper victor in victors)
@@ -210,6 +223,8 @@ namespace RefereeSpace
                 {
                     if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                     {
+                        Console.WriteLine("FAILED");
+                        Console.WriteLine("GAME ENDED");
                         List<string> names = new List<string>();
                         if (_current_player == _player1)
                             names.Add(_player2.GetName());
