@@ -147,18 +147,19 @@ namespace Go
         {
             List<string> cheaters = new List<string>();
 
+            //Start by replacing players who failed to register/receive-stones with default-players
             for (int i = 0; i < players.Count; i++)
             {
                 if (has_cheated[i])
                 {
+                    Console.WriteLine("Replacing " + player_names[i] + " with replacement player" + i.ToString());
                     cheaters.Add(player_names[i]);
-                    //technically incorrect default-player
-                    players[i] = new PlayerWrapper(aiType, 1, true);
+                    players[i] = new PlayerWrapper(aiType, depth, true);
                     player_names[i] = players[i].Register("replacement player" + i.ToString());
                 }
             }
 
-            //Play tournament
+            //First create match matrix (2d array of -1)
             int[][] matches = new int[players.Count][];
             for (int i = 0; i < players.Count; i++)
             {
@@ -169,6 +170,7 @@ namespace Go
                 }
             }
 
+            //Play tournament
             RefereeWrapper referee;
             List<string> victors;
             string victor;
@@ -185,7 +187,6 @@ namespace Go
 	                Console.WriteLine("Match between " + player_names[i] + " and " + player_names[j] + " is beginning");
 					referee = new RefereeWrapper(players[i], players[j], board_size);
                     victors = referee.RefereeGame(player_names[i], player_names[j], out has_cheater);
-
 
                     if (has_cheater)
                     {
@@ -241,22 +242,22 @@ namespace Go
                         //assuming default players won't cheat
                         if (!has_cheated[i])
                         {
+                            Console.Write("Sending End Game to " + player_names[i] + ": ");
                             string end = players[i].EndGame();
-							Console.Write("Sending End Game to " + player_names[i]);
                             if (end != "OK")
                                 throw new WrapperException("invalid endgame message");
-							Console.WriteLine(" Successfully ended game");
+							Console.WriteLine("Successfully ended game");
                         }
                     }
                     catch (Exception e)
                     {
                         if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                         {
+                            Console.Write("FAILED, ");
                             has_cheated[i] = true;
 
                             cheaters.Add(player_names[i]);
-                            //technically incorrect default-player
-                            players[i] = new PlayerWrapper(aiType, 1, true);							
+                            players[i] = new PlayerWrapper(aiType, depth, true);							
                             player_names[i] = players[i].Register("replacement player" + i.ToString());
 	                        Console.WriteLine("Replaced with replacement player" + i.ToString());
 
@@ -279,17 +280,18 @@ namespace Go
                         //assuming default players won't cheat
                         if (!has_cheated[i])
                         {
+                            Console.Write("Sending End Game to " + player_names[i] + ": ");
                             string end = players[j].EndGame();
-							Console.Write("Sending End Game to " + player_names[j]);
 	                        if (end != "OK")
 		                        throw new WrapperException("invalid endgame message");
-	                        Console.WriteLine(" Successfully ended game");
+	                        Console.WriteLine("Successfully ended game");
 						}
                     }
                     catch (Exception e)
                     {
                         if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                         {
+                            Console.Write("FAILED, ");
                             has_cheated[j] = true;
 
                             cheaters.Add(player_names[j]);
@@ -336,6 +338,10 @@ namespace Go
             return player_rankings;
         }
 
+        /*
+         * Administers a single elimination tournament
+         * Returns a sorted list of player rankings
+         */
         private static List<PlayerRanking> AdministerSingleElimination(List<PlayerWrapper> players, List<string> player_names, List<bool> has_cheated, 
             int board_size, string aiType, int depth)
         {
@@ -344,6 +350,7 @@ namespace Go
             List<PlayerRanking> rankings = new List<PlayerRanking>();
             int score = 1;
 
+            //Create a list of players, play games between them, and remove eliminated players from list
             string victor;
             int replacementCount = 0;
             while (remainingPlayers.Count != 1)
@@ -373,12 +380,13 @@ namespace Go
                         Random rng = new Random();
                         victor = victors[rng.Next(0, 2)];
 	                    Console.WriteLine("There was a tie! " + victor + " was chosen as the winner");
-;                    }
+                        Console.WriteLine("===============================================");
+                    }
                     else if (victors.Count == 1)
                     {
 	                    victor = victors[0];
 	                    Console.WriteLine(victor + " is the winner of this match");
-						Console.WriteLine("=============================================");
+						Console.WriteLine("===============================================");
                     }                      
                     else
                         throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
@@ -387,9 +395,11 @@ namespace Go
                     {
                         try
                         {
+                            Console.Write("Sending end game to winner: ");
                             string end = player1.EndGame();
                             if (end != "OK")
                                 throw new WrapperException("invalid endgame message");
+                            Console.WriteLine("Successful");
                             winners.Add(player1);
                             winnersNames.Add(player1Name);
                         }
@@ -397,9 +407,9 @@ namespace Go
                         {
                             if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                             {
+                                Console.Write("FAILED, ");
                                 rankings.Add(new PlayerRanking(player1Name, 0));
-                                //technically incorrect default-player
-                                PlayerWrapper replacement = new PlayerWrapper(aiType, 1, true);
+                                PlayerWrapper replacement = new PlayerWrapper(aiType, depth, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
 	                            Console.WriteLine("Adding replacement player" + replacementCount.ToString());
@@ -436,9 +446,11 @@ namespace Go
                     {
                         try
                         {
+                            Console.Write("Sending end game to winner: ");
                             string end = player2.EndGame();
                             if (end != "OK")
                                 throw new WrapperException("invalid endgame message");
+                            Console.WriteLine("Successful");
                             winners.Add(player2);
                             winnersNames.Add(player2Name);
                         }
@@ -446,9 +458,9 @@ namespace Go
                         {
                             if (e is JsonSerializationException || e is ArgumentException || e is SocketException || e is WrapperException || e is JsonReaderException)
                             {
+                                Console.Write("FAILED, ");
                                 rankings.Add(new PlayerRanking(player2Name, 0));
-                                //technically incorrect default-player
-                                PlayerWrapper replacement = new PlayerWrapper(aiType, 1, true);
+                                PlayerWrapper replacement = new PlayerWrapper(aiType, depth, true);
                                 winners.Add(replacement);
                                 winnersNames.Add(replacement.Register("replacement player" + replacementCount.ToString()));
 	                            Console.WriteLine("Adding replacement player" + replacementCount.ToString());
