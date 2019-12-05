@@ -101,8 +101,8 @@ namespace Go
 	                Console.WriteLine("Trying to register player " + playerNumber);
                     player_names.Add(player.Register("player" + playerNumber));
 					has_cheated.Add(false);
-                    playerNumber++;
-	                Console.WriteLine("Sucessfully registered player " + playerNumber - 1);
+	                Console.WriteLine("Sucessfully registered player " + playerNumber);
+                    playerNumber++;       
                 }
                 catch (Exception e)
                 {
@@ -390,7 +390,7 @@ namespace Go
 	                    if (has_cheater)
 	                    {
 		                    rankings.Add(new PlayerRanking(player2Name, 0));
-							Console.WriteLine(player2Name + " has cheated")
+		                    Console.WriteLine(player2Name + " has cheated");
 	                    }               
                         else
                         {
