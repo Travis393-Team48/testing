@@ -42,7 +42,7 @@ namespace RefereeSpace
         {
             if (_players_set == 0)
             {
-                Console.Write("Assigning Player 1: ");
+                Console.Write("Assigning " + _player1.GetName() + ": ");
                 _current_player = _player1;
                 _players_set++;
                 _player1.ReceiveStones("B");
@@ -51,7 +51,7 @@ namespace RefereeSpace
             }
             else if (_players_set == 1)
             {
-                Console.Write("Assigning Player2: ");
+                Console.Write("Assigning " + _player2.GetName() + ": ");
                 _players_set++;
                 _player2.ReceiveStones("W");
                 Console.WriteLine("Successful");

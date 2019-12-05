@@ -99,7 +99,7 @@ namespace Go
                 try
                 {
 	                Console.WriteLine("Trying to register player " + playerNumber);
-                    player_names.Add(player.Register("player" + playerNumber));
+                    player_names.Add(player.Register("default player" + playerNumber));
 					has_cheated.Add(false);
 	                Console.WriteLine("Sucessfully registered player " + playerNumber);
                     playerNumber++;       
@@ -214,6 +214,7 @@ namespace Go
                         {
 	                        victor = victors[0];
 	                        Console.WriteLine(victor + " is the winner of this match");
+							Console.WriteLine("==========================================");
                         }                       
                         else
                             throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
@@ -344,8 +345,9 @@ namespace Go
                     remainingPlayersNames.RemoveAt(0);
 
                     RefereeWrapper referee = new RefereeWrapper(player1, player2, board_size);
-                    List<string> victors = referee.RefereeGame(player1Name, player2Name, out bool has_cheater);
 	                Console.WriteLine("Match between " + player1Name + " and " + player2Name + " is beginning");
+					List<string> victors = referee.RefereeGame(player1Name, player2Name, out bool has_cheater);
+	                
 
                     if (victors.Count == 2)
                     {
@@ -357,6 +359,7 @@ namespace Go
                     {
 	                    victor = victors[0];
 	                    Console.WriteLine(victor + " is the winner of this match");
+						Console.WriteLine("=============================================");
                     }                      
                     else
                         throw new AdminException(victors.Count.ToString() + " victors returned in Admin");
