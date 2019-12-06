@@ -22,9 +22,9 @@ namespace PlayerSpace
         private Socket sender;
         private string _name;
 
-        public PlayerClient(string ip, int port, string aiType, int n = 1, string name = "my player client")
+        public PlayerClient(string ip, int port, string aiType, int n = 1, string name = "my player client", bool tournament = false)
         {
-            _player = new PlayerWrapper(aiType, n, true);
+            _player = new PlayerWrapper(aiType, n, tournament);
             _name = name;
 
             if (ip == "localhost")

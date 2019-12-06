@@ -69,7 +69,7 @@ namespace Go
                 }
                 else
                 {
-                    printRankings.Add((i + 1).ToString() + "(Score: "+ finalRankings[i].score.ToString() +  ") : " + finalRankings[i].name);
+                    printRankings.Add((i + 1).ToString() + " (Score: "+ finalRankings[i].score.ToString() +  ") : " + finalRankings[i].name);
                     currRank = i + 1;
 					
                 }
