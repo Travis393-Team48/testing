@@ -90,7 +90,10 @@ namespace PlayerSpace
 
         public string EndGame()
         {
-            return _player.EndGame();
+            string ok = _player.EndGame();
+            if (ok != "OK")
+                throw new WrapperException("Player did not return \"OK\" in PlayerWrapper");
+            return ok;
         }
     }
 }

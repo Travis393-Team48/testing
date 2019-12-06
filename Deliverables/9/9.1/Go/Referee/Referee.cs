@@ -201,8 +201,6 @@ namespace RefereeSpace
                     else
                     {
                         Console.Write(next_move + ", ");
-                        //maybe this function shouldn't be in referee... need to check if this is a valid point b/c no wrappeer
-                        ValidationMethods.ValidatePoint(next_move, _size);
                         Play(next_move);
                         Console.WriteLine("played successfully");
                     }
