@@ -58,12 +58,6 @@ namespace RefereeSpace
             return _referee.GetBoardHistory();
         }
 
-        public void SetBoardHistory(string[][][] bh)
-        {
-            ValidationMethods.ValidateBoards(bh);
-            _referee.SetBoardHistory(bh);
-        }
-
         public List<PlayerWrapper> GetVictors()
         {
             return _referee.GetVictors();

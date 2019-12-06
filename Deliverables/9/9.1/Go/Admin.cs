@@ -74,7 +74,7 @@ namespace Go
             {
                 try
                 {
-                    PlayerWrapper player = new PlayerWrapper(Socket, true);
+                    PlayerWrapper player = new PlayerWrapper(Socket);
                     Console.WriteLine("Successfully connected player" + i);
 
                     Console.Write("Trying to register player" + i + ": ");
@@ -100,18 +100,18 @@ namespace Go
                 int player_num = players.Count;
                 for (int i = 0; i < additional_players; i++)
                 {
-                    players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + player_num));
+                    players.Add(Admin.CreateDefaultPlayerData(aiType, depth, "default player " + player_num));
                     player_num++;
                 }
             }
             else if (_number_of_remote_players == 1)
             {
-                players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + 1));
+                players.Add(Admin.CreateDefaultPlayerData(aiType, depth, "default player " + 1));
             }
             else if (_number_of_remote_players < 1)
             {
-                players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + 0));
-                players.Add(Admin.CreateDefaultPlayerStruct(aiType, depth, "default player " + 1));
+                players.Add(Admin.CreateDefaultPlayerData(aiType, depth, "default player " + 0));
+                players.Add(Admin.CreateDefaultPlayerData(aiType, depth, "default player " + 1));
             }
 
             switch (tournament_type)
@@ -142,24 +142,20 @@ namespace Go
                 {
 	                cheaters.Add(players[i].Name);
 					Console.WriteLine("Replacing " + players[i].Name + " with replacement player" + cheaters.Count);
-                    players[i] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
+                    players[i] = CreateDefaultPlayerData(aiType, depth, "replacement player " + cheaters.Count);
                 }
             }
 
-            //Play tournament
-            RefereeWrapper referee;
-            List<string> victors;
-            string victor;
-            bool has_cheater;
             for (int i = 0; i < players.Count; i++)
             {
-                for (int j = i + 1; j < players.Count; j++)
+				for (int j = i + 1; j < players.Count; j++)
                 {
-	                Console.WriteLine("Match between " + players[i].Name + " and " + players[j].Name + " is beginning");
-					referee = new RefereeWrapper(players[i].PlayerObject , players[j].PlayerObject, board_size);
-                    victors = referee.RefereeGame(players[i].Name, players[j].Name, out has_cheater);
+					Console.WriteLine("Match between " + players[i].Name + " and " + players[j].Name + " is beginning");
+					RefereeWrapper referee = new RefereeWrapper(players[i].PlayerObject , players[j].PlayerObject, board_size);
+                    List<string> victors = referee.RefereeGame(players[i].Name, players[j].Name, out bool has_cheater);
 
                     //If draw, set victor to random player
+	                string victor;
                     if (victors.Count == 2)
                     {
                         Random rng = new Random();
@@ -186,7 +182,7 @@ namespace Go
 
                         //Add to cheaters list and replace
                         cheaters.Add(players[cheater].Name);
-                        players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
+                        players[cheater] = CreateDefaultPlayerData(aiType, depth, "replacement player " + cheaters.Count);
                         Console.WriteLine("Adding new player: replacement player " + cheaters.Count);
                     }
 
@@ -212,9 +208,9 @@ namespace Go
                                 player.Disqualify();
                                 cheaters.Add(player.Name);
                                 if (player.Name == players[winner].Name)
-                                    players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
+                                    players[winner] = CreateDefaultPlayerData(aiType, depth, "replacement player " + cheaters.Count);
                                 else
-                                    players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
+                                    players[loser] = CreateDefaultPlayerData(aiType, depth, "replacement player " + cheaters.Count);
 
                                 Console.WriteLine("Replaced with replacement player" + cheaters.Count);
                             }
@@ -334,15 +330,15 @@ namespace Go
 			    score++;
 			}
 
-            //end of matches, returh player rankings
+            //end of matches, retur player rankings
 		    rankings.Add(new PlayerRanking(remainingPlayers[0].Name, score));
 		    rankings.Sort(SortPlayerRankings);
 		    return rankings;
 		}
 
-	    private static PlayerData CreateDefaultPlayerStruct(string aiType, int depth, string name)
+	    private static PlayerData CreateDefaultPlayerData(string aiType, int depth, string name)
         {
-            PlayerWrapper player = new PlayerWrapper(aiType, depth, true);
+            PlayerWrapper player = new PlayerWrapper(aiType, depth);
             string player_name = player.Register(name);
             Console.WriteLine("Sucessfully registered default player: " + player_name);
 

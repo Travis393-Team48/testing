@@ -130,12 +130,6 @@ namespace RefereeSpace
             return bh;
         }
 
-        public void SetBoardHistory(string[][][] bh)
-        {
-            foreach (string[][] board in bh)
-                _board_history.Add(new BoardWrapper(board, board.Length));
-        }
-
         public List<PlayerWrapper> GetVictors()
         {
             return _victors;

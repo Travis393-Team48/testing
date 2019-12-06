@@ -18,7 +18,7 @@ namespace RemotePlayer
             JObject config = JsonConvert.DeserializeObject<JObject>(go);
 			Console.Write("name: ");
 	        string input = Console.ReadLine();
-            PlayerClient player = new PlayerClient(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "smart", 1, input, true);
+            PlayerClient player = new PlayerClient(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "smart", 1, input);
             //PlayerClientIllegal player = new PlayerClientIllegal(config["IP"].ToObject<string>(), config["port"].ToObject<int>(), "smart", input);
             while (true)
             {

@@ -18,20 +18,17 @@ namespace PlayerSpace
         private IPlayer _player;
         private bool _register_flag;
         private bool _receive_stones_flag;
-        private bool _is_tournament_player;
 
-        public PlayerWrapper(Socket socket, bool tournament = false)
+        public PlayerWrapper(Socket socket)
         {
             _player = new PlayerProxy(socket);
-            _is_tournament_player = tournament;
         }
 
-        public PlayerWrapper(string aiType, int n = 1, bool tournament = false)
+        public PlayerWrapper(string aiType, int n = 1)
         {
             ValidationMethods.ValidateAIType(aiType);
             ValidationMethods.ValidateN(n);
             _player = new Player(aiType, n);
-            _is_tournament_player = tournament;
         }
 
         //Use specifically for illegal players
@@ -58,7 +55,7 @@ namespace PlayerSpace
             ValidationMethods.ValidateStone(stone);
             if (!_register_flag)
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Register not called before ReceiveStones");
-            if (!_is_tournament_player && _receive_stones_flag)
+            if (_receive_stones_flag)
                 throw new WrapperException("Protocols of interaction violation in PlayerWrapper: Receive stone called twice on a non-touornament player");
             _player.ReceiveStones(stone);
             _receive_stones_flag = true;
@@ -93,6 +90,7 @@ namespace PlayerSpace
             string ok = _player.EndGame();
             if (ok != "OK")
                 throw new WrapperException("Player did not return \"OK\" in PlayerWrapper");
+	        _receive_stones_flag = false;
             return ok;
         }
     }
