@@ -69,7 +69,7 @@ namespace Go
             int depth = playerJObject["depth"].ToObject<int>();
             string aiType = playerJObject["aiType"].ToObject<string>();
 
-            List<PlayerStruct> players = new List<PlayerStruct>();
+            List<PlayerData> players = new List<PlayerData>();
             for (int i = 0; i < _number_of_remote_players; i++)
             {
                 try
@@ -81,7 +81,7 @@ namespace Go
                     string player_name = player.Register("default player" + i);
                     Console.WriteLine("Sucessfully registered player: " + player_name);
 
-                    players.Add(new PlayerStruct(player, player_name));
+                    players.Add(new PlayerData(player, player_name));
                 }
                 catch (Exception e)
                 {
@@ -131,17 +131,17 @@ namespace Go
          * Administers a round robin tournament
          * Returns a sorted list of player rankings
          */
-        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerStruct> players, int board_size, string aiType, int depth)
+        private static List<PlayerRanking> AdministerRoundRobin(List<PlayerData> players, int board_size, string aiType, int depth)
         {
             List<string> cheaters = new List<string>();
 
             //Start by replacing players who failed to register/receive-stones with default-players
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i].hasCheated)
+                if (players[i].HasCheated)
                 {
-                    Console.WriteLine("Replacing " + players[i].name + " with replacement player" + players.Count);
-                    cheaters.Add(players[i].name);
+                    Console.WriteLine("Replacing " + players[i].Name + " with replacement player" + players.Count);
+                    cheaters.Add(players[i].Name);
                     players[i] = (CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count));
                 }
             }
@@ -155,9 +155,9 @@ namespace Go
             {
                 for (int j = i + 1; j < players.Count; j++)
                 {
-	                Console.WriteLine("Match between " + players[i].name + " and " + players[j].name + " is beginning");
-					referee = new RefereeWrapper(players[i].playerObject , players[j].playerObject, board_size);
-                    victors = referee.RefereeGame(players[i].name, players[j].name, out has_cheater);
+	                Console.WriteLine("Match between " + players[i].Name + " and " + players[j].Name + " is beginning");
+					referee = new RefereeWrapper(players[i].PlayerObject , players[j].PlayerObject, board_size);
+                    victors = referee.RefereeGame(players[i].Name, players[j].Name, out has_cheater);
 
                     //If draw, set victor to random player
                     if (victors.Count == 2)
@@ -172,7 +172,7 @@ namespace Go
                     Console.WriteLine(victor + " is the winner of this match");
 
                     //Update matches
-                    int winner = victor == players[i].name ? i : j;
+                    int winner = victor == players[i].Name ? i : j;
                     int loser = winner == i ? j : i;
                     players[winner].IncrementScore();
                     players[winner].AddToWonAgainst(players[loser]);
@@ -180,27 +180,27 @@ namespace Go
                     if (has_cheater)
                     {
                         //Disqualify cheater
-                        int cheater = victors[0] == players[i].name ? j : i;
+                        int cheater = victors[0] == players[i].Name ? j : i;
                         players[cheater].Disqualify();
-                        Console.WriteLine(players[cheater].name + " cheated");
+                        Console.WriteLine(players[cheater].Name + " cheated");
 
                         //Add to cheaters list and replace
-                        cheaters.Add(players[cheater].name);
+                        cheaters.Add(players[cheater].Name);
                         players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
                         Console.WriteLine("Adding new player: replacement player " + cheater.ToString());
                     }
 
                     //call end game for all players (that didn't cheat)
-                    List<PlayerStruct> ls = new List<PlayerStruct>();
+                    List<PlayerData> ls = new List<PlayerData>();
                     ls.Add(players[winner]);
                     if (!has_cheater)
                         ls.Add(players[loser]);
-                    foreach (PlayerStruct player in ls)
+                    foreach (PlayerData player in ls)
                     {
                         try
                         {
-                            Console.Write("Sending End Game to " + player.name + ": ");
-                            string end = player.playerObject.EndGame();
+                            Console.Write("Sending End Game to " + player.Name + ": ");
+                            string end = player.PlayerObject.EndGame();
                             if (end != "OK")
                                 throw new WrapperException("invalid endgame message");
                             Console.WriteLine("Successfully ended game");
@@ -212,8 +212,8 @@ namespace Go
                                 Console.Write("FAILED, ");
 
                                 player.Disqualify();
-                                cheaters.Add(player.name);
-                                if (players[winner].name == player.name)
+                                cheaters.Add(player.Name);
+                                if (players[winner].Name == player.Name)
                                     players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
                                 else
                                     players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
@@ -233,7 +233,7 @@ namespace Go
             List<PlayerRanking> player_rankings = new List<PlayerRanking>();
             for(int i = 0; i < players.Count; i++)
             {
-                player_rankings.Add(new PlayerRanking(players[i].name, players[i].score));
+                player_rankings.Add(new PlayerRanking(players[i].Name, players[i].Score));
             }
 
             player_rankings.Sort(SortPlayerRankings);
@@ -248,10 +248,10 @@ namespace Go
          * Administers a single elimination tournament
          * Returns a sorted list of player rankings
          */
-	    private static List<PlayerRanking> AdministerSingleElimination(List<PlayerStruct> players, int board_size,
+	    private static List<PlayerRanking> AdministerSingleElimination(List<PlayerData> players, int board_size,
 		    string aiType, int depth)
 	    {
-		    List<PlayerStruct> remainingPlayers = players;
+		    List<PlayerData> remainingPlayers = players;
 		    List<PlayerRanking> rankings = new List<PlayerRanking>();
 		    int score = 1;
 
@@ -259,18 +259,32 @@ namespace Go
 		    string victor;
 		    while (remainingPlayers.Count != 1)
 		    {
-			    List<PlayerStruct> winners = new List<PlayerStruct>();
+			    List<PlayerData> winners = new List<PlayerData>();
 				while (remainingPlayers.Count != 0)
 			    {
 				    //Update players
-				    PlayerStruct player1 = remainingPlayers[0];
-				    PlayerStruct player2 = remainingPlayers[1];
+				    PlayerData player1 = remainingPlayers[0];
+				    PlayerData player2 = remainingPlayers[1];
 				    remainingPlayers.RemoveAt(0);
 				    remainingPlayers.RemoveAt(0);
 
-				    RefereeWrapper referee = new RefereeWrapper(player1.playerObject, player2.playerObject, board_size);
-				    Console.WriteLine("Match between " + player1.name + " and " + player2.name + " is beginning");
-				    List<string> victors = referee.RefereeGame(player1.name, player2.name, out bool has_cheater);
+                    //Check if either player cheated in the previous round
+                    PlayerData cheater = player1.HasCheated ? player1 : player2.HasCheated ? player2 : null;
+                    PlayerData not_cheater = cheater == player1 ? player2 : cheater == player2 ? player1 : null;
+                    if (cheater != null)
+                    {
+                        rankings.Add(new PlayerRanking(cheater.Name, 0));
+                        winners.Add(not_cheater);
+                        Console.WriteLine(cheater.Name + " loses due to cheating in previous round");
+                        Console.WriteLine(not_cheater.Name + " is the winner of this match");
+                        Console.WriteLine("===========================================================");
+                        continue;
+                    }
+
+                    //Play game
+                    RefereeWrapper referee = new RefereeWrapper(player1.PlayerObject, player2.PlayerObject, board_size);
+				    Console.WriteLine("Match between " + player1.Name + " and " + player2.Name + " is beginning");
+				    List<string> victors = referee.RefereeGame(player1.Name, player2.Name, out bool has_cheater);
 
 				    //If draw, set victor to random player
 				    if (victors.Count == 2)
@@ -285,99 +299,95 @@ namespace Go
 				    Console.WriteLine(victor + " is the winner of this match");
 
 				    //Update winner/loser
-				    PlayerStruct winner = victor == player1.name ? player1 : player2;
-				    PlayerStruct loser = victor == player1.name ? player2 : player1;
+				    PlayerData winner = victor == player1.Name ? player1 : player2;
+				    PlayerData loser = victor == player1.Name ? player2 : player1;
 
-				    if (has_cheater)
-				    {
-					    //send cheater to bottom of ranking
-					    Console.WriteLine(loser.name + " cheated");
-					    rankings.Add(new PlayerRanking(loser.name, 0));
-				    }
-				    else
-				    {
-					    rankings.Add(new PlayerRanking(loser.name, score));
-				    }
-
+                    if (has_cheater)
+                    {
+                        //send cheater to bottom of ranking
+                        Console.WriteLine(loser.Name + " cheated");
+                        rankings.Add(new PlayerRanking(loser.Name, 0));
+                    }
+                    else
+                        rankings.Add(new PlayerRanking(loser.Name, score));
 
 				    try
 				    {
-					    Console.Write("Sending End Game to " + winner.name + ": ");
-					    string end = winner.playerObject.EndGame();
+					    Console.Write("Sending End Game to " + winner.Name + ": ");
+					    string end = winner.PlayerObject.EndGame();
 					    if (end != "OK")
 						    throw new WrapperException("invalid endgame message");
 					    Console.WriteLine("Successfully ended game");
-					    Console.WriteLine("=============================================");
 					}
 				    catch (Exception e)
 				    {
 					    if (e is JsonSerializationException || e is ArgumentException || e is SocketException ||
 					        e is WrapperException || e is JsonReaderException)
 					    {
-						    Console.Write("FAILED, ");
-
-						    rankings.Add(new PlayerRanking(winner.name, 0));
-						    remainingPlayers.Add(CreateDefaultPlayerStruct(aiType, depth, "replacement player " + rankings.Count));
-						    Console.WriteLine("Replaced with replacement player" + rankings.Count);
+						    Console.WriteLine("FAILED, " + winner.Name + " disqualified");
+                            winner.Disqualify();
 					    }
 					    else
 						    throw;
 				    }
-					winners.Add(winner);
+
+                    Console.WriteLine("===========================================================");
+                    winners.Add(winner);
 				}
 			    remainingPlayers = winners;
 			    score++;
 			}
-		    rankings.Add(new PlayerRanking(remainingPlayers[0].name, score));
 
+            //end of matches, returh player rankings
+		    rankings.Add(new PlayerRanking(remainingPlayers[0].Name, score));
 		    rankings.Sort(SortPlayerRankings);
 		    return rankings;
 		}
 
-	    private static PlayerStruct CreateDefaultPlayerStruct(string aiType, int depth, string name)
+	    private static PlayerData CreateDefaultPlayerStruct(string aiType, int depth, string name)
         {
             PlayerWrapper player = new PlayerWrapper(aiType, depth, true);
             string player_name = player.Register(name);
             Console.WriteLine("Sucessfully registered default player: " + player_name);
 
-            return new PlayerStruct(player, player_name);
+            return new PlayerData(player, player_name);
         }
 
-        public struct PlayerStruct
+        public class PlayerData
         {
-            public PlayerWrapper playerObject { get; private set; }
-            public string name { get; private set; }
-            public int score { get; private set; }
-            public bool hasCheated { get; private set; }
-            private List<PlayerStruct> wonAgainst;
+            public PlayerWrapper PlayerObject { get; private set; }
+            public string Name { get; private set; }
+            public int Score { get; private set; }
+            public bool HasCheated { get; private set; }
+            private List<PlayerData> wonAgainst;
 
-            public PlayerStruct(PlayerWrapper p, string n)
+            public PlayerData(PlayerWrapper p, string n)
             {
-                playerObject = p;
-                name = n;
-                score = 0;
-                hasCheated = false;
-                wonAgainst = new List<PlayerStruct>();
+                PlayerObject = p;
+                Name = n;
+                Score = 0;
+                HasCheated = false;
+                wonAgainst = new List<PlayerData>();
             }
 
             public void IncrementScore()
             {
-                if (!hasCheated)
-                    score++;
+                if (!HasCheated)
+                    Score++;
             }
 
             //Reset score, set hasCheated, refund points
             public void Disqualify()
             {
-                score = 0;
-                hasCheated = true;
-                foreach (PlayerStruct p in wonAgainst)
+                Score = 0;
+                HasCheated = true;
+                foreach (PlayerData p in wonAgainst)
                 {
                     p.IncrementScore();
                 }
             }
 
-            public void AddToWonAgainst(PlayerStruct p)
+            public void AddToWonAgainst(PlayerData p)
             {
                 wonAgainst.Add(p);
             }
