@@ -187,7 +187,7 @@ namespace Go
                         //Add to cheaters list and replace
                         cheaters.Add(players[cheater].Name);
                         players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
-                        Console.WriteLine("Adding new player: replacement player " + cheater.ToString());
+                        Console.WriteLine("Adding new player: replacement player " + players.Count);
                     }
 
                     //call end game for all players (that didn't cheat)
@@ -201,8 +201,6 @@ namespace Go
                         {
                             Console.Write("Sending End Game to " + player.Name + ": ");
                             string end = player.PlayerObject.EndGame();
-                            if (end != "OK")
-                                throw new WrapperException("invalid endgame message");
                             Console.WriteLine("Successfully ended game");
                         }
                         catch (Exception e)
@@ -213,7 +211,7 @@ namespace Go
 
                                 player.Disqualify();
                                 cheaters.Add(player.Name);
-                                if (players[winner].Name == player.Name)
+                                if (player.Name == players[winner].Name)
                                     players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
                                 else
                                     players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
@@ -239,7 +237,7 @@ namespace Go
             player_rankings.Sort(SortPlayerRankings);
 
             foreach(string cheater in cheaters)
-                player_rankings.Add(new PlayerRanking(cheater, 0));
+                player_rankings.Add(new PlayerRanking(cheater, -1));
 
             return player_rankings;
         }
@@ -273,7 +271,7 @@ namespace Go
                     PlayerData not_cheater = cheater == player1 ? player2 : cheater == player2 ? player1 : null;
                     if (cheater != null)
                     {
-                        rankings.Add(new PlayerRanking(cheater.Name, 0));
+                        rankings.Add(new PlayerRanking(cheater.Name, -1));
                         winners.Add(not_cheater);
                         Console.WriteLine(cheater.Name + " loses due to cheating in previous round");
                         Console.WriteLine(not_cheater.Name + " is the winner of this match");
@@ -306,7 +304,7 @@ namespace Go
                     {
                         //send cheater to bottom of ranking
                         Console.WriteLine(loser.Name + " cheated");
-                        rankings.Add(new PlayerRanking(loser.Name, 0));
+                        rankings.Add(new PlayerRanking(loser.Name, -1));
                     }
                     else
                         rankings.Add(new PlayerRanking(loser.Name, score));
@@ -315,8 +313,6 @@ namespace Go
 				    {
 					    Console.Write("Sending End Game to " + winner.Name + ": ");
 					    string end = winner.PlayerObject.EndGame();
-					    if (end != "OK")
-						    throw new WrapperException("invalid endgame message");
 					    Console.WriteLine("Successfully ended game");
 					}
 				    catch (Exception e)
@@ -379,7 +375,7 @@ namespace Go
             //Reset score, set hasCheated, refund points
             public void Disqualify()
             {
-                Score = 0;
+                Score = -1;
                 HasCheated = true;
                 foreach (PlayerData p in wonAgainst)
                 {
