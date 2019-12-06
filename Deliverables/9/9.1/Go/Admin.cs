@@ -330,11 +330,14 @@ namespace Go
 			    score++;
 			}
 
-            //end of matches, retur player rankings
-		    rankings.Add(new PlayerRanking(remainingPlayers[0].Name, score));
-		    rankings.Sort(SortPlayerRankings);
-		    return rankings;
-		}
+            //end of matches, add the finals winner to rankings, and return player rankings
+            if (remainingPlayers[0].HasCheated)
+                rankings.Add(new PlayerRanking(remainingPlayers[0].Name, -1));
+            else
+                rankings.Add(new PlayerRanking(remainingPlayers[0].Name, score));
+            rankings.Sort(SortPlayerRankings);
+            return rankings;
+        }
 
 	    private static PlayerData CreateDefaultPlayerData(string aiType, int depth, string name)
         {
