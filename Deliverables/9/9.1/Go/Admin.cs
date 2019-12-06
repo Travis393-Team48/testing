@@ -140,9 +140,9 @@ namespace Go
             {
                 if (players[i].HasCheated)
                 {
-                    Console.WriteLine("Replacing " + players[i].Name + " with replacement player" + players.Count);
-                    cheaters.Add(players[i].Name);
-                    players[i] = (CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count));
+	                cheaters.Add(players[i].Name);
+					Console.WriteLine("Replacing " + players[i].Name + " with replacement player" + cheaters.Count);
+                    players[i] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
                 }
             }
 
@@ -186,8 +186,8 @@ namespace Go
 
                         //Add to cheaters list and replace
                         cheaters.Add(players[cheater].Name);
-                        players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
-                        Console.WriteLine("Adding new player: replacement player " + players.Count);
+                        players[cheater] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
+                        Console.WriteLine("Adding new player: replacement player " + cheaters.Count);
                     }
 
                     //call end game for all players (that didn't cheat)
@@ -212,11 +212,11 @@ namespace Go
                                 player.Disqualify();
                                 cheaters.Add(player.Name);
                                 if (player.Name == players[winner].Name)
-                                    players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+                                    players[winner] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
                                 else
-                                    players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + players.Count);
+                                    players[loser] = CreateDefaultPlayerStruct(aiType, depth, "replacement player " + cheaters.Count);
 
-                                Console.WriteLine("Replaced with replacement player" + players.Count);
+                                Console.WriteLine("Replaced with replacement player" + cheaters.Count);
                             }
                             else
                                 throw;
