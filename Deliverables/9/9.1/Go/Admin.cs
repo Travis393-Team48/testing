@@ -375,7 +375,6 @@ namespace Go
                 {
                     p.IncrementScore();
                 }
-
             }
 
             public void AddToWonAgainst(PlayerStruct p)
